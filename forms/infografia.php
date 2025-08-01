@@ -1,11 +1,41 @@
-<!-- Botón flotante para abrir ayuda -->
-<button id="showHelp" class="btn btn-info" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999;">
-  ¿Ayuda?
-</button>
+<?php
+$seccion = isset($_GET['seccion']) ? $_GET['seccion'] : '';
 
-<!-- Contenido de la burbuja de ayuda -->
-<div id="helpBubble" style="display:none; position: fixed; bottom: 80px; right: 20px; width: 320px; background: #f8f9fa; border: 1px solid #0dcaf0; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); padding: 15px; z-index: 9999;">
-  <h6 style="margin-top:0; color:#0d6efd;">¿Cómo subir un documento?</h6>
-  <p style="font-size:13px; color: #555;">texto</p>
-  <button id="closeHelp" class="btn btn-sm btn-outline-secondary">Cerrar</button>
-</div>
+$ayudas = [
+  'subida' => [
+    'titulo' => '¿Cómo subir un documento?',
+    'texto' => 'Selecciona el área y subsistema, adjunta el archivo. El código se genera automáticamente.'
+  ],
+  'versionado' => [
+    'titulo' => '¿Cómo versionar documentos?',
+    'texto' => 'Al subir un archivo con el mismo nombre, se agregará automáticamente un número de versión como -01, -02, etc.'
+  ],
+  'investigacion' => [
+    'titulo' => '¿Qué hace esta sección?',
+    'texto' => 'Aquí puedes registrar investigaciones de accidentes laborales según D.S. 44.'
+  ],
+  // Agrega más ayudas según tus secciones
+];
+
+if (isset($ayudas[$seccion])) {
+  $ayuda = $ayudas[$seccion];
+  echo '
+  <div style="
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 320px;
+    background-color: #e8f4fd;
+    color: #084298;
+    border: 1px solid #b6e0fe;
+    border-radius: 12px;
+    padding: 15px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    font-size: 14px;
+    z-index: 9999;">
+    <strong>' . htmlspecialchars($ayuda['titulo']) . '</strong><br>
+    <p style="margin: 5px 0;">' . htmlspecialchars($ayuda['texto']) . '</p>
+  </div>';
+}
+?>
+

@@ -94,7 +94,9 @@ toastr.options = {
 
 </style>
 
+
 <HEAD>
+
 <meta http-equiv="Expires" content="0">
  
 <meta http-equiv="Last-Modified" content="0">
@@ -105,12 +107,23 @@ toastr.options = {
        
 <div class="panel panel-info">
  
-    <div class="panel box-shadow-none content-header margin-topbar">
-        <div class="form-group col-xs-12 col-lg-12" style="background-color: #39b3d7; border: 1px solid; border-color:#269abc; padding: 10px 3px 10px 5px; line-height: 15px; top:-15px;">
-            <!--colocar al estilo-->
-            <b><font size=3 color="white"><center>SOLICITUD DE CÓDIGO</center></font></b>
-        </div>
-    </div>
+  <div class="panel box-shadow-none content-header margin-topbar">
+  <div class="form-group col-xs-12 col-lg-12" style="background-color: #39b3d7; border: 1px solid; border-color: #269abc; padding: 10px 10px 10px 10px; position: relative;">
+    
+    <!-- Título centrado -->
+    <b>
+      <font size="3" color="white">
+        <center>SOLICITUD DE CÓDIGO</center>
+      </font>
+    </b>
+
+    <a href="?ayuda=1" style="position: absolute; top: -4px; right: 10px;">
+      <img src="img/ayuda.png" alt="Ayuda" style="width: 48px; height: 48px;" title="¿Necesitas ayuda?">
+    </a>
+
+  </div>
+</div>
+
 
     <div class="panel-body">
   
