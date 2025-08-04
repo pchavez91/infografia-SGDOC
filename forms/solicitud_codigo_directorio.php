@@ -104,36 +104,84 @@ toastr.options = {
 <meta http-equiv="Cache-Control" content="no-cache, mustrevalidate">
  
 <meta http-equiv="Pragma" content="no-cache">
+
+<meta charset="UTF-8">
+  <title>Solicitud de Código</title>
+  <style>
+    /* Estilo de encabezado */
+    .panel-header {
+      background-color: #39b3d7;
+      border: 1px solid #269abc;
+      padding: 10px;
+      position: relative;
+    }
+
+    .panel-header b {
+      color: white;
+      font-size: 16px;
+    }
+
+    .icono-ayuda {
+      width: 48px;
+      height: 48px;
+      cursor: pointer;
+      position: absolute;
+      top: -4px;
+      right: 10px;
+    }
+
+    /* Estilo burbuja ayuda */
+    .burbuja-ayuda {
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+      position: absolute;
+      top: 60px;
+      right: 10px;
+      width: 320px;
+      padding: 10px;
+      background: white;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-shadow: 0px 2px 8px rgba(0,0,0,0.2);
+      z-index: 9999;
+      font-size: 13px;
+    }
+
+    /* Clase visible con animación */
+    .burbuja-ayuda.visible {
+      opacity: 1;
+      visibility: visible;
+    }
+  </style>
+
+  <script src="script/infografia.js"></script>
+
+</head>
        
-<div class="panel panel-info">
-  <div class="panel box-shadow-none content-header margin-topbar">
-    <div class="form-group col-xs-12 col-lg-12" style="background-color: #39b3d7; border: 1px solid; border-color: #269abc; padding: 10px 10px 10px 10px; position: relative;">
-      
-      <!-- Título centrado -->
-      <b>
-        <font size="3" color="white">
-          <center>SOLICITUD DE CÓDIGO</center>
-        </font>
-      </b>
-      <!-- Ícono ayuda -->
-      <img id="btnAyuda" src="img/ayuda.png" alt="Ayuda"
-      style="width: 48px; height: 48px; cursor: pointer; position: absolute; top: -4px; right: 10px;" title="¿Necesitas ayuda?">
+  <div class="panel panel-info">
+    <div class="panel box-shadow-none content-header margin-topbar">
+      <div class="form-group col-xs-12 col-lg-12 panel-header">
 
-      <!-- Burbuja de ayuda -->
-      <div id="ayuda_burbuja" style="display: none; position: absolute; top: 50px; right: 0px;
-        width: 320px; padding: 10px; background: white; border: 1px solid #ccc; border-radius: 8px;
-        box-shadow: 0px 2px 8px rgba(0,0,0,0.2); z-index: 999; font-size: 13px;">
-        <b>¿Cómo hacer una solicitud de código?</b><br><br>
-        1. Completa los campos requeridos: área, subsistema, etc.<br>
-        2. El sistema generará automáticamente un código.<br>
-        3. Adjunta el documento correspondiente.<br>
-        4. Haz clic en "Guardar".<br><br>
-        <i>Este código se usará para el control y seguimiento del documento.</i>
+        <!-- Título -->
+        <b><center>SOLICITUD DE CÓDIGO</center></b>
+
+        <!-- Ícono de ayuda -->
+        <img id="btnAyuda" src="img/ayuda.png" alt="Ayuda" class="icono-ayuda" title="¿Necesitas ayuda?">
+
+        <!-- Burbuja flotante de ayuda -->
+        <div id="ayudaBurbuja" class="burbuja-ayuda">
+          <b>¿Cómo hacer una solicitud de código?</b><br><br>
+          1. Completa los campos requeridos: área, subsistema, etc.<br>
+          2. El sistema generará automáticamente un código.<br>
+          3. Adjunta el documento correspondiente.<br>
+          4. Haz clic en "Guardar".<br><br>
+          <i>Este código se usará para el control y seguimiento del documento.</i>
+        </div>
+
       </div>
-
     </div>
   </div>
-</div>
 
 
 
@@ -749,26 +797,3 @@ var cont=0;
 combos_inicio();
 
 </script>
-
-<script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const btnAyuda = document.getElementById('btnAyuda');
-    const ayudaBurbuja = document.getElementById('ayuda_burbuja');
-
-    // Mostrar/Ocultar la burbuja al hacer clic en el ícono
-    btnAyuda.addEventListener('click', function (e) {
-      e.stopPropagation(); // Evita que se cierre inmediatamente
-      ayudaBurbuja.style.display = (ayudaBurbuja.style.display === 'block') ? 'none' : 'block';
-    });
-
-    // Ocultar la burbuja si se hace clic fuera de ella
-    document.addEventListener('click', function (e) {
-      if (!btnAyuda.contains(e.target) && !ayudaBurbuja.contains(e.target)) {
-        ayudaBurbuja.style.display = 'none';
-      }
-    });
-  });
-</script>
-
-
-
