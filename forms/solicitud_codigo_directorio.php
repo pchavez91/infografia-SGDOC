@@ -129,36 +129,12 @@ toastr.options = {
       top: -4px;
       right: 10px;
     }
-
-    /* Estilo burbuja ayuda */
-    .burbuja-ayuda {
-      opacity: 0;
-      visibility: hidden;
-      transition: opacity 0.3s ease, visibility 0.3s ease;
-      position: absolute;
-      top: 60px;
-      right: 10px;
-      width: 320px;
-      padding: 10px;
-      background: white;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      box-shadow: 0px 2px 8px rgba(0,0,0,0.2);
-      z-index: 9999;
-      font-size: 13px;
-    }
-
-    /* Clase visible con animación */
-    .burbuja-ayuda.visible {
-      opacity: 1;
-      visibility: visible;
-    }
   </style>
 
   <script src="script/infografia.js"></script>
 
 </head>
-       
+         
   <div class="panel panel-info">
     <div class="panel box-shadow-none content-header margin-topbar">
       <div class="form-group col-xs-12 col-lg-12 panel-header">
@@ -166,22 +142,36 @@ toastr.options = {
         <!-- Título -->
         <b><center>SOLICITUD DE CÓDIGO</center></b>
 
-        <!-- Ícono de ayuda -->
-        <img id="btnAyuda" src="img/ayuda.png" alt="Ayuda" class="icono-ayuda" title="¿Necesitas ayuda?">
-
-        <!-- Burbuja flotante de ayuda -->
-        <div id="ayudaBurbuja" class="burbuja-ayuda">
-          <b>¿Cómo hacer una solicitud de código?</b><br><br>
-          1. Completa los campos requeridos: área, subsistema, etc.<br>
-          2. El sistema generará automáticamente un código.<br>
-          3. Adjunta el documento correspondiente.<br>
-          4. Haz clic en "Guardar".<br><br>
-          <i>Este código se usará para el control y seguimiento del documento.</i>
-        </div>
+        <img id="btnAyuda" onclick="abre_modal_ayuda()" src="img/ayuda.png" alt="Ayuda" class="icono-ayuda" title="¿Necesitas ayuda?">
 
       </div>
     </div>
   </div>
+
+    <!-- VENTANA NUEVA AYUDA-->
+    <div id="ventana_de_ayuda" class="modal fade">
+      <div class="modal-dialog" style="max-width: 500px; margin-top: 10%;">
+        <div class="modal-content" style="border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); font-family: Arial, sans-serif;">
+          <div class="modal-header" style="background-color: #39b3d7; color: white; border-top-left-radius: 10px; border-top-right-radius: 10px;">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color:white; font-size: 28px; opacity: 0.9;">
+              <span aria-hidden="true">&times;</span>
+            </button>
+            <h4 class="modal-title" style="text-align: center; font-weight: bold;">SOLICITUD DE CÓDIGO</h4>
+          </div>
+
+          <form action="#" method="post" role="form" style="padding: 20px; font-size: 15px; line-height: 1.6;">
+            <b style="display: block; margin-bottom: 10px; color: #333;">¿Cómo hacer una solicitud de código?</b>
+            <ol style="padding-left: 20px; margin-bottom: 15px; color: #444;">
+              <li>Completa los campos requeridos: área, subsistema, etc.</li>
+              <li>El sistema generará automáticamente un código.</li>
+              <li>Adjunta el documento correspondiente.</li>
+              <li>Haz clic en "Guardar".</li>
+            </ol>
+            <i style="color: #666;">Este código se usará para el control y seguimiento del documento.</i>
+          </form>
+        </div>
+      </div>
+    </div>
 
 
 
@@ -250,7 +240,6 @@ toastr.options = {
 <link href="../fracttal_comasa/css/toastr.css" rel="stylesheet"/>
 <!-- <link href="http://codeseven.github.com/toastr/toastr-responsive.css" rel="stylesheet"/> -->
 <script src="../fracttal_comasa/js/toastr.js"></script>
-
 
 
  <!-- VENTANA CODIGO ARCHIVO -->
