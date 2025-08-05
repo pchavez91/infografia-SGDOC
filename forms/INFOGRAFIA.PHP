@@ -15,11 +15,7 @@
             <h4 class="modal-title" style="text-align: center; font-weight: bold;">SOLICITUD DE CÓDIGO</h4>
           </div>
 
-          <form action="#" method="post" role="form" style="padding: 20px; font-size: 15px; line-height: 1.6;">
-            <b style="display: block; margin-bottom: 10px; color: #333;">Para cargar un nuevo documento, debes completar los campos obligatorios como tipo de documento, área, sistema, subsistema y unidad.
-                Una vez ingresada esta información, el sistema generará automáticamente un código estructurado y único para identificar el archivo.
-                Este código se construye según las reglas de codificación interna del sistema SGDOC y se asigna al momento de guardar el documento.
-            </b>          
+          <form action="#" method="post" role="form" style="padding: 20px; font-size: 15px; line-height: 1.6;">       
             <b style="display: block; margin-bottom: 10px; color: #333;">¿Cómo hacer una solicitud de código?</b>
             <ol style="padding-left: 20px; margin-bottom: 15px; color: #444;">
               <li>Completa los campos requeridos: área, subsistema, etc.</li>
