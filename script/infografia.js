@@ -26,19 +26,19 @@ function abre_modal_ayuda(){
     if (pasoActual === totalPasos) {
       btnSiguiente.style.display = "none";
 
-      // ⏱️ Cerrar el modal automáticamente después de 2 segundos
+      // ⏱️ Cerrar el modal automáticamente después de 10 segundos
       setTimeout(() => {
         $('#ventana_de_ayuda').modal('hide');
         pasoActual = 1; // Reinicia si vuelven a abrir el modal
 
-        // Opcional: mostrar solo el primer paso al reabrir
+        // mostrar solo el primer paso al reabrir
         document.getElementById("paso2").style.display = "none";
         document.getElementById("paso3").style.display = "none";
         document.getElementById("paso1").style.display = "block";
         btnSiguiente.style.display = "inline-block";
         btnAnterior.disabled = true;
 
-      }, 5000); // 5000 milisegundos = 5 segundos
+      }, 10000); // 10000 milisegundos = 5 segundos
     } else {
       btnSiguiente.style.display = "inline-block";
       btnSiguiente.textContent = "Siguiente";
