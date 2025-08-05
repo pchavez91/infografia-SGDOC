@@ -33,46 +33,52 @@
 
 <!-- VENTANA NUEVA CARPETA -->
 <div id="ventana_busqueda_archivo" class="modal fade">
-    <div class="modal-dialog modal-lg">
+  <div class="modal-dialog modal-lg">
     <div class="modal-content">
+      
       <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-           <center><h4 class="modal-title"><label id="">BUSCAR ARCHIVOS </label></h4></center>
-            <h6 class="modal-title"><label id="directorio_codigos"></label></h6>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <center>
+          <h4 class="modal-title"><label>BUSCAR ARCHIVOS</label></h4>
+        </center>
+        <h6 class="modal-title">
+          <label id="directorio_codigos"></label>
+        </h6>
       </div>
-      <!-- <div class="modal-body"> -->
-    <form action="#" method="post" role="form" id="form_editar_descripcion">
-      </br>
-      <div class="rows">
-            <div class="col-xs-12 col-lg-12">
-                  <table id="tabla_lista_archivos_encontrados" class="display nowrap" width="100%">
-                      <thead>
-                          <tr>
-                          <th>NOMBRE</th>
-                          <th>CODIGO</th>
-                          <th>RUTA</th>
-                          <th>VER</th>
-                             
-                          </tr>
-                      </thead>
-                  </table>
-              </div>
-   
-      </div>
-    </form>
- </br></br>
-      <!-- </div> -->
-    <div class="rows">
+
+      <form action="#" method="post" role="form" id="form_editar_descripcion">
+        <br>
+        <!-- Tabla -->
+        <div class="row" style="padding: 0 15px;">
+          <div class="col-xs-12 col-lg-12">
+            <table id="tabla_lista_archivos_encontrados" class="display nowrap" width="100%">
+              <thead>
+                <tr>
+                  <th>NOMBRE</th>
+                  <th>CODIGO</th>
+                  <th>RUTA</th>
+                  <th>VER</th>
+                </tr>
+              </thead>
+            </table>
+          </div>
+        </div>
+        
+        <br><br>
+      </form>
+
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Salir</button>
       </div>
-  </div>
 
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
 
 <!-- FIN VENTANA NUEVA CARPETA -->
+
 
 
 

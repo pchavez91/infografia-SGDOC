@@ -18,62 +18,73 @@ var consulta='json/json.php?accion=lista_de_codigos&id_directorio='+id_directori
 
 
 $("#tabla_lista_archivos").dataTable().fnDestroy();
-$('#tabla_lista_archivos').DataTable({
-         responsive: true,
-         dom: 'Bfrtip',
-         scrollX:true,
-         buttons: [ 
-        ],
-             aLengthMenu: [
-                          [10,25, 50, 100, 200, -1],
-                          [10,25, 50, 100, 200, "Todos"]
-                      ],
-        iDisplayLength: 10,     
-    
-            "ajax":''+consulta+'',
-            "columns": [
-            { "data": "codigo_directotio" },
-            { "data": "fecha_creacion" },
-            { "data": "utilizado" },
-            {data: 'id', "render": function (data, type, row, meta) {
-
-                if(row.utilizado=='NO'){
-                    return '<center><button type="button"  class="btn btn-danger fa fa-minus-square btn-md pull-left" title="Eliminar código" onclick="eliminar_codigo(\''+row.id+'\')" ></button>';
-                }else{
+var tabla = $('#tabla_lista_archivos').DataTable({
+    responsive: true,
+    dom: '<"top"f>rt<"bottom"lip><"clear">', // mueve buscador a la parte superior derecha
+    scrollX: true,
+    buttons: [],
+    aLengthMenu: [
+        [10, 25, 50, 100, 200, -1],
+        [10, 25, 50, 100, 200, "Todos"]
+    ],
+    iDisplayLength: 10,
+    ajax: '' + consulta + '',
+    columns: [
+        { "data": "codigo_directotio" },
+        { "data": "fecha_creacion" },
+        { "data": "utilizado" },
+        {
+            data: 'id', "render": function (data, type, row, meta) {
+                if (row.utilizado == 'NO') {
+                    return '<center><button type="button"  class="btn btn-danger fa fa-minus-square btn-md pull-left" title="Eliminar código" onclick="eliminar_codigo(\'' + row.id + '\')" ></button>';
+                } else {
                     return '';
                 }
-
-            }}  
-            ],
-            "language": {
-                "lengthMenu": "Mostrar _MENU_ Registros por pagina",
-                "zeroRecords": "No se ha encontrado resultados",
-                "info": "Mostrando pagina _PAGE_ de _PAGES_",
-                "infoEmpty": "Sin resultados",
-                "infoFiltered": "(Filtrado de _MAX_ registros totales)",
-                "search": "Buscar",
-                 "oPaginate": {
-                    "sFirst":    "Primero",
-                    "sLast":     "Último",
-                    "sNext":     "Siguiente",
-                    "sPrevious": "Anterior"
-                        },
-            },
-            
-           "order": [], // sin orden de columna
-
-            "columnDefs": [
-            {
-                //"targets": [ 2],
-                //"visible": false,
-                //"searchable": false
             }
-        ],
-           });
+        }
+    ],
+    language: {
+        lengthMenu: "Mostrar _MENU_ Registros por pagina",
+        zeroRecords: "No se ha encontrado resultados",
+        info: "Mostrando pagina _PAGE_ de _PAGES_",
+        infoEmpty: "Sin resultados",
+        infoFiltered: "(Filtrado de _MAX_ registros totales)",
+        search: "Buscar",
+        oPaginate: {
+            sFirst: "Primero",
+            sLast: "Último",
+            sNext: "Siguiente",
+            sPrevious: "Anterior"
+        },
+    },
+    order: []
+});
 
+tabla.on('xhr', function () {
+    var data = tabla.ajax.json().data;
 
+    // Filtro por código
+    var codigos = [...new Set(data.map(item => item.codigo_directotio))];
+    $('#filtroCodigo').empty().append('<option value="">Filtrar por código</option>');
+    codigos.forEach(codigo => {
+        $('#filtroCodigo').append(`<option value="${codigo}">${codigo}</option>`);
+    });
 
-}
+    // Filtro por fecha
+    var fechas = [...new Set(data.map(item => item.fecha_creacion))];
+    $('#filtroFecha').empty().append('<option value="">Filtrar por fecha</option>');
+    fechas.forEach(fecha => {
+        $('#filtroFecha').append(`<option value="${fecha}">${fecha}</option>`);
+    });
+});
+
+$('#filtroCodigo').on('change', function () {
+    tabla.column(0).search(this.value).draw();
+});
+$('#filtroFecha').on('change', function () {
+    tabla.column(1).search(this.value).draw();
+});
+
 
 
 

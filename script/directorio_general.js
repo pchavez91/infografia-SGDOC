@@ -10,22 +10,23 @@ $(document).on('shown.bs.modal', function (e) {
         
 
 
-function abre_ventana_buscar_archivo(){
+function abre_ventana_buscar_archivo() {
+    var id_directorio = $("#id_directorio").val();
 
-var id_directorio = $("#id_directorio").val();
+    if (id_directorio == '0') {
+        alert('Error: Al menos debe ingresar a algunos de los directorios');
+    } else {
+        // Cargar el select de tipos de documento
+        cargar_select_tipo_documento();
 
-  if(id_directorio == '0'){
+        // Cargar la tabla
+        carga_lista_archivos();
 
-            alert('Error: Al menos debe ingresar a algunos de los directorios');
-
-  }else{
-
-    carga_lista_archivos();
-
-    $("#ventana_busqueda_archivo").modal('show');
-
-  }
+        // Mostrar el modal
+        $("#ventana_busqueda_archivo").modal('show');
+    }
 }
+
 
 
 function visualizar_archivo(id_directorio){
@@ -52,17 +53,26 @@ function visualizar_archivo(id_directorio){
 
 
 function carga_lista_archivos(){
-
+var tipoDoc = $('#filtro_tipo_documento').val();
+var departamento = $('#filtro_departamento').val(); // otro filtro
 var consulta='json/json.php?accion=listar_archivos_busqueda';
 
+// Agregar filtros como parámetros GET si tienen valor
+    var params = [];
+    if (tipoDoc !== '') params.push('tipo_documento=' + encodeURIComponent(tipoDoc));
+    if (departamento !== '') params.push('departamento=' + encodeURIComponent(departamento));
 
+    if (params.length > 0) {
+        consulta += '&' + params.join('&');
+    }
+    
 $("#tabla_lista_archivos_encontrados").dataTable().fnDestroy();
 $('#tabla_lista_archivos_encontrados').DataTable({
          responsive: true,
-         dom: 'Bfrtip',
+         dom: "<'row'<'col-sm-12'<'custom-filters d-flex align-items-center'>>>" +
+                "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>",
          scrollX:true,
-         buttons: [ 
-        ],
+         buttons: [],
              aLengthMenu: [
                           [10,25, 50, 100, 200, -1],
                           [10,25, 50, 100, 200, "Todos"]
@@ -103,10 +113,73 @@ $('#tabla_lista_archivos_encontrados').DataTable({
             }
         ],
            });
-
-
-
 }
+
+$('#tabla_lista_archivos_encontrados').on('init.dt', function () {
+    const filtrosHTML = `
+        <div class="form-inline">
+            <label class="mr-2">Buscar:</label>
+            <input type="search" class="form-control" placeholder="Buscar..." id="custom_search_input">
+
+            <label class="mr-2">Departamento:</label>
+            <select id="filtro_departamento" class="form-control mr-3">
+                <option value="">Todas</option>
+                <!-- Opciones estáticas o cargadas aparte -->
+            </select>
+
+            <label class="mr-2">Tipo de documento:</label>
+            <select id="filtro_tipo_documento" class="form-control mr-3">
+                <option value="">Todos</option>
+            </select>
+        </div>
+    `;
+
+    $('.custom-filters').html(filtrosHTML);
+
+    // Ahora cargamos los tipos de documento
+    cargar_select_tipo_documento();
+
+    // Vinculamos eventos
+    $('#custom_search_input').on('keyup', function () {
+        $('#tabla_lista_archivos_encontrados').DataTable().search(this.value).draw();
+    });
+
+    $('#filtro_departamento').on('change', function () {
+        $('#tabla_lista_archivos_encontrados').DataTable().column(1).search(this.value).draw();
+    });
+
+    $('#filtro_tipo_documento').on('change', function () {
+        carga_lista_archivos(); // Recarga la tabla con filtro
+    });
+});
+
+
+function cargar_select_tipo_documento() {
+    $.ajax({
+        url: 'json/json.php?accion=obtener_tipos_documento',
+        method: 'GET',
+        dataType: 'json',
+        success: function (data) {
+            var select = $('#filtro_tipo_documento');
+            select.empty();
+            select.append('<option value="">Todos</option>');
+
+            data.forEach(function (item) {
+                // Usar item.id o item.nombre según tu JSON, en este caso ambos son iguales
+                select.append('<option value="' + item.id + '">' + item.nombre + '</option>');
+            });
+        },
+        error: function () {
+            alert('Error al cargar los tipos de documento');
+        }
+    });
+}
+
+
+
+
+
+
 
 
 
