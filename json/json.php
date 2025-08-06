@@ -2750,31 +2750,31 @@ if($accion=='edita_directorio'){
 
 if($accion=='listar_archivos_busqueda'){
 
-	$tipo_documento = isset($_GET['tipo_documento']) ? trim($_GET['tipo_documento']) : '';
-    $departamento = isset($_GET['departamento']) ? trim($_GET['departamento']) : '';
+	/*$tipo_documento = isset($_GET['tipo_documento']) ? trim($_GET['tipo_documento']) : '';
+    $departamento = isset($_GET['departamento']) ? trim($_GET['departamento']) : '';*/
 
 	$arreglo='';
 	$codigo_cargo=$_SESSION['cod_cargo'];
 	//$codigo_cargo='92';
 
 
-    $sql ="SELECT r.[id], r.[nombre_elemento], r.[id_padre], r.[extencion_elemento], r.[tipo_elemento], r.[ruta],
-                   r.[fecha_publicacion], r.[nivel_acceso], r.[descripcion], r.[codigo_archivo], r.[tipo_documento],
-                   d.departamento
-            FROM [BDflexline].[TI].[base_repositorio] r
-            LEFT JOIN [BDflexline].[TI].[base_repositorio_departamento] d ON r.id_departamento = d.id
-            WHERE r.[tipo_elemento]='0' AND r.[vigencia]='SI' AND r.estado_gestion='OK'";
+    $sql ="SELECT [id], [nombre_elemento], [id_padre], [extencion_elemento], [tipo_elemento],
+                   [ruta], [fecha_publicacion], [nivel_acceso], [descripcion], [codigo_archivo]
+            FROM [BDflexline].[TI].[base_repositorio]
+            WHERE [tipo_elemento] = '0'
+              AND [vigencia] = 'SI'
+              AND [estado_gestion] = 'OK'";
 
-			if ($tipo_documento != '') {
+			/*if ($tipo_documento != '') {
         	// Escapa o valida $tipo_documento para evitar inyección
         		$tipo_documento_esc = addslashes($tipo_documento);
         		$sql .= " AND r.tipo_documento = '$tipo_documento_esc'";
     		}
 
-    		if ($departamento != '') {
+    		/*if ($departamento != '') {
         		$departamento_esc = addslashes($departamento);
         		$sql .= " AND d.departamento = '$departamento_esc'";
-    		}
+    		}*/
 
 			$RESP = mssql_query($sql, $link);
     		if(!$RESP){
