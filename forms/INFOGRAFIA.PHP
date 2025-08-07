@@ -1,7 +1,17 @@
-<script src="script/infografia.js"></script>
 
 
-<img id="btnAyuda" onclick="abre_modal_ayuda()" src="img/ayuda.png" alt="Ayuda" class="icono-ayuda" title="¿Necesitas ayuda?">
+<div class="panel panel-info">
+    <div class="panel box-shadow-none content-header margin-topbar">
+      <div class="form-group col-xs-12 col-lg-12 panel-header">
+
+        <!-- Título -->
+        <b><center>SOLICITUD DE CÓDIGO</center></b>
+
+        <img id="btnAyuda" onclick="abre_modal_ayuda()" src="IMAGENES/ayuda.png" alt="Ayuda" class="icono-ayuda" title="¿Necesitas ayuda?">
+
+      </div>
+    </div>
+  </div>
 
 
 <!-- VENTANA NUEVA AYUDA-->
