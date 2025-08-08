@@ -187,3 +187,22 @@ function cargar_select_tipo_documento() {
         }
     });
 }
+
+function cargar_select_departamento() {
+    $.ajax({
+        url: 'json/json.php?accion=obtener_departamentos',
+        method: 'GET',
+        dataType: 'json',
+        success: function (data) {
+            var select = $('#filtro_departamento');
+            select.empty();
+            select.append('<option value="">Todos</option>');
+            data.forEach(function (item) {
+                select.append('<option value="' + item.id + '">' + item.nombre + '</option>');
+            });
+        },
+        error: function () {
+            alert('Error al cargar los departamentos');
+        }
+    });
+}
