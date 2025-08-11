@@ -3820,4 +3820,44 @@ if($accion=='consulta_directorio_atras_general'){
    			
 }
 
+if($accion == 'consulta_directorio_completo') {
+    $codigo_cargo = $_SESSION['cod_cargo'];
+
+    $sql = "SELECT nombre_elemento, nivel_acceso, codigo_archivo,
+            CASE WHEN nomesclatura = '' THEN nombre_elemento ELSE nomesclatura + ' - ' + nombre_elemento END AS nombre_nomesclatura,
+            nomesclatura, id, id_padre, tipo_elemento, extencion_elemento, REPLACE(ruta, '/', ' > ') as ruta
+            FROM BDflexline.TI.base_repositorio
+            WHERE vigencia = 'SI' AND (estado_gestion = 'OK' OR estado_gestion IS NULL)
+            ORDER BY nombre_nomesclatura";
+
+    $RESP = mssql_query($sql, $link);
+    $arreglo = [];
+
+    while($ROW = mssql_fetch_array($RESP)) {
+        $nivel_acceso = $ROW['nivel_acceso'];
+
+        // Control básico de nivel de acceso, adaptar según tu lógica
+        if ($nivel_acceso == '4' || $nivel_acceso == '') {
+            $arreglo[] = [
+                "nombre_elemento" => utf8_encode($ROW['nombre_elemento']),
+                "nivel_acceso" => $nivel_acceso,
+                "nombre_nomesclatura" => utf8_encode($ROW['nombre_nomesclatura']),
+                "nomesclatura" => $ROW['nomesclatura'],
+                "id" => $ROW['id'],
+                "id_padre" => $ROW['id_padre'],
+                "tipo_elemento" => $ROW['tipo_elemento'],
+                "extencion_elemento" => $ROW['extencion_elemento'],
+                "ruta" => utf8_encode($ROW['ruta']),
+                "codigo_archivo" => $ROW['codigo_archivo']
+            ];
+        }
+        // Agrega más control de acceso si es necesario
+    }
+
+    header('Content-Type: application/json');
+    echo json_encode(["data" => $arreglo]);
+    exit;
+}
+
+
 ?>

@@ -42,3 +42,7 @@ $('#permiso_diario_sub').click(function() {
 $('#admin_permiso_sub').click(function() { 
    $('#carga-contenido').load('forms/admin_permisos.php');
    });
+
+$('#directorio_cascada').click(function() { 
+    $('#carga-contenido').load('forms/cascada.php');
+});
