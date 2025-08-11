@@ -83,11 +83,17 @@ $('#tabla_lista_archivos_encontrados').DataTable({
             "columns": [
             { "data": "nombre_elemento" },
             { "data": "codigo_archivo" },
-            { "data": "ruta" },
-            {data: 'id', "render": function (data, type, row, meta) {
-                return '<div class="form-group col-xs-2 col-md-2 col-lg-2" onClick="visualizar_archivo(\''+row.id+'\')"><img src="img/'+row.extencion_elemento+'.png" class="img-responsive" style="max-width: 30px;" alt="Logo" title="'+row.nombre_elemento+'" ></div>';
-            }} 
+            { 
+                data: 'id',
+                render: function (data, type, row) {
+                return '<div style="cursor:pointer;" onClick="visualizar_archivo(\''+row.id+'\')">' +
+                        '<img src="img/'+row.extencion_elemento+'.png" style="max-width: 30px;" title="Ver archivo">' +
+                        '</div>';
+                }
+            },
+            { "data": "ruta" }
             ],
+
             "language": {
                 "lengthMenu": "Mostrar _MENU_ Registros por pagina",
                 "zeroRecords": "No se ha encontrado resultados",

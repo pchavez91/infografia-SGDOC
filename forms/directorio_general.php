@@ -58,10 +58,11 @@
                 <tr>
                   <th>NOMBRE</th>
                   <th>CODIGO</th>
+                  <th>VER</th>   <!-- ahora va aquí -->
                   <th>RUTA</th>
-                  <th>VER</th>
                 </tr>
               </thead>
+
             </table>
           </div>
         </div>
