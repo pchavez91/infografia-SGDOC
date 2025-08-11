@@ -117,17 +117,16 @@ $('#tabla_lista_archivos_encontrados').DataTable({
 
 $('#tabla_lista_archivos_encontrados').on('init.dt', function () {
     const filtrosHTML = `
-
-        <div class="col-lg-12 col-xs-12 d-flex align-items-center mb-3">
+        <div class="col-lg-12 col-xs-12 d-flex align-items-center">
             <label for="custom_search_input" class="col-auto col-form-label mr-2"><strong>Buscar:</strong></label>
-            <div class="col-auto">
-                <input type="search" id="custom_search_input" class="form-control" placeholder="Buscar...">
+            <div class="flex-grow-1">
+                <input type="search" id="custom_search_input" class="form-control" placeholder="Buscar..." style="width:100%;">
             </div>
         </div>
 
         <div class="col-lg-6 col-xs-6 d-flex align-items-center">
-                <label for="filtro_departamento" class="col-auto col-form-label mr-2">
-                <strong>Departamento:</strong></label>
+            <label for="filtro_departamento" class="col-auto col-form-label mr-2">
+            <strong>Departamento:</strong></label>
             <div class="col-auto">
                 <select id="filtro_departamento" class="form-control">
                     <option value="">Todos</option>
