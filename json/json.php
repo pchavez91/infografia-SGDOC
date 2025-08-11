@@ -2868,23 +2868,20 @@ if ($accion == 'obtener_tipos_documento') {
 if ($accion == 'obtener_departamentos') {
     $departamentos = array();
 
-    // TODO: reemplazar esta consulta con la real
-    /*
-    $sql = "SELECT DISTINCT nombre_elemento
-            FROM [BDflexline].[TI].[base_repositorio]
-            WHERE extencion_elemento = 'ca'
-            ORDER BY fecha_creacion DESC";
-    */
-    $sql = ""; // consulta pendiente
+    $sql = "SELECT DISTINCT departamento
+        FROM [BDflexline].[TI].[base_repositorio_departamento]
+        WHERE vigente = 'S'
+        ORDER BY departamento";
+
 
     $resp = mssql_query($sql, $link);
 
     while ($row = mssql_fetch_array($resp)) {
-        $nombre = trim(utf8_encode($row['nombre_elemento'])); // evita espacios y asegura UTF-8
+        $nombre = trim(utf8_encode($row['departamento']));
 
-        if ($nombre !== '') { // evita valores vacíos o nulos
+        if ($nombre !== '') {
             $departamentos[] = array(
-                "id" => $nombre,   // si más adelante usas un ID real, cámbialo aquí
+                "id" => $nombre,
                 "nombre" => $nombre
             );
         }
@@ -2894,6 +2891,7 @@ if ($accion == 'obtener_departamentos') {
     echo json_encode($departamentos);
     exit;
 }
+
 
 
 

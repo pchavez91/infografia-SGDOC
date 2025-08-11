@@ -130,25 +130,39 @@ $('#tabla_lista_archivos_encontrados').DataTable({
 
 $('#tabla_lista_archivos_encontrados').on('init.dt', function () {
     const filtrosHTML = `
-        <div class="form-inline">
-            <label class="mr-2">Buscar:</label>
-            <input type="search" class="form-control" placeholder="Buscar..." id="custom_search_input">
 
-            <label class="mr-2">Departamento:</label>
-            <select id="filtro_departamento" class="form-control mr-3">
-                <option value="">Todas</option>
-                <!-- Opciones estáticas o cargadas aparte -->
-            </select>
-
-            <label class="mr-2">Tipo de documento:</label>
-            <select id="filtro_tipo_documento" class="form-control mr-3">
-                <option value="">Todos</option>
-            </select>
+        <div class="col-lg-12 col-xs-12 d-flex align-items-center mb-3">
+            <label for="custom_search_input" class="col-auto col-form-label mr-2"><strong>Buscar:</strong></label>
+            <div class="col-auto">
+                <input type="search" id="custom_search_input" class="form-control" placeholder="Buscar...">
+            </div>
         </div>
-    `;
+
+        <div class="col-lg-6 col-xs-6 d-flex align-items-center">
+                <label for="filtro_departamento" class="col-auto col-form-label mr-2">
+                <strong>Departamento:</strong></label>
+            <div class="col-auto">
+                <select id="filtro_departamento" class="form-control">
+                    <option value="">Todos</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="col-lg-6 col-xs-6 d-flex align-items-center">
+            <label for="filtro_tipo_documento" class="col-auto col-form-label ml-4 mr-2"><strong>Tipo de documento:</strong></label>
+            <div class="col-auto">
+                <select id="filtro_tipo_documento" class="form-control">
+                    <option value="">Todos</option>
+                </select>
+            </div>
+        </div>
+    </div>
+`;
 
     $('.custom-filters').html(filtrosHTML);
 
+    // Ahora cargamos los departamentos
+    cargar_select_departamento();
     // Ahora cargamos los tipos de documento
     cargar_select_tipo_documento();
 
