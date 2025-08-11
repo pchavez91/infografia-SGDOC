@@ -97,8 +97,8 @@
                 <tr>
                   <th>NOMBRE</th>
                   <th>CODIGO</th>
+                  <th>VER</th>   
                   <th>RUTA</th>
-                  <th>VER</th>
                 </tr>
               </thead>
             </table>

@@ -58,7 +58,7 @@
                 <tr>
                   <th>NOMBRE</th>
                   <th>CODIGO</th>
-                  <th>VER</th>   <!-- ahora va aquí -->
+                  <th>VER</th>   
                   <th>RUTA</th>
                 </tr>
               </thead>
