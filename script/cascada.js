@@ -44,20 +44,19 @@ function renderTree(nodes) {
         li.className = node.tipo_elemento === 'carpeta' ? 'folder' : 'file';
 
         if (node.children && node.children.length > 0) {
-            li.appendChild(renderTree(node.children));
-            // Expande/colapsa al hacer click
+            const childUl = renderTree(node.children);
+            childUl.style.display = 'none'; // Oculta los hijos por defecto
+            li.appendChild(childUl);
+
             li.addEventListener('click', function(e) {
                 e.stopPropagation();
-                const childUl = this.querySelector('ul');
-                if (childUl) {
-                    childUl.style.display = childUl.style.display === 'none' ? '' : 'none';
-                }
+                childUl.style.display = childUl.style.display === 'none' ? '' : 'none';
             });
         } else if (node.tipo_elemento !== 'carpeta') {
-            // Acción para archivos (ejemplo: alertar ruta)
+            // Acción para archivos (ver siguiente punto)
             li.addEventListener('click', function(e) {
                 e.stopPropagation();
-                alert('Archivo: ' + node.nombre_elemento + '\nRuta: ' + node.ruta);
+                abrirArchivo(node); // función personalizada
             });
         }
 
@@ -66,10 +65,3 @@ function renderTree(nodes) {
 
     return ul;
 }
-
-fetch('json/json.php?accion=consulta_directorio_completo')
-  .then(res => res.json())
-  .then(json => {
-      console.log(json); // <-- ¿Ves los datos aquí?
-      // ... resto del código
-  });
