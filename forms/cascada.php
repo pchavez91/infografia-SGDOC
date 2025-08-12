@@ -1,60 +1,33 @@
 <!DOCTYPE html>
-<html lang="es"> 
-  
-  <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Explorador de Carpetas en Cascada</title>
-  <style>
-    ul {
-      list-style-type: none;
-      padding-left: 20px;
-    }
-    .folder, .file {
-      cursor: pointer;
-      user-select: none;
-    }
-    .folder::before {
-      content: "📁 ";
-    }
-    .file::before {
-      content: "📄 ";
-    }
-    .nested {
-      display: none;
-    }
-    .active {
-      display: block;
-    }
-  </style>
-  </head>
-  <body>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Explorador de Archivos en Cascada</title>
+    <style>
+        ul.tree, ul.tree ul {
+            list-style: none;
+            margin-left: 20px;
+            padding-left: 0;
+        }
+        ul.tree li {
+            margin: 2px 0;
+            cursor: pointer;
+        }
+        .folder::before {
+            content: "📁 ";
+        }
+        .file::before {
+            content: "📄 ";
+        }
+    </style>
+</head>
+<body>
+    <h2>Explorador de Archivos</h2>
+    <div id="explorador"></div>
 
-  <h2>Explorador de Carpetas en Cascada</h2>
-
-  <ul id="fileTree">
-    <li>
-      <span class="folder">Carpeta 1</span>
-      <ul class="nested">
-        <li><span class="file">Archivo 1-1.txt</span></li>
-        <li><span class="file">Archivo 1-2.txt</span></li>
-        <li>
-          <span class="folder">Subcarpeta 1-1</span>
-          <ul class="nested">
-            <li><span class="file">Archivo 1-1-1.txt</span></li>
-            <li><span class="file">Archivo 1-1-2.txt</span></li>
-          </ul>
-        </li>
-      </ul>
-    </li>
-    <li>
-      <span class="folder">Carpeta 2</span>
-      <ul class="nested">
-        <li><span class="file">Archivo 2-1.txt</span></li>
-      </ul>
-    </li>
-    <li><span class="file">Archivo raíz.txt</span></li>
-  </ul>
+    <script src="script/cascada.js"></script>
+</body>
+</html>
 
   <script>
     // Obtener todos los elementos con clase folder
