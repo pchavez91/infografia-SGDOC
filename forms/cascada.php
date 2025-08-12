@@ -4,21 +4,53 @@
     <meta charset="UTF-8">
     <title>Explorador de Archivos en Cascada</title>
     <style>
-        ul.tree, ul.tree ul {
-            list-style: none;
-            margin-left: 20px;
-            padding-left: 0;
-        }
-        ul.tree li {
-            margin: 2px 0;
-            cursor: pointer;
-        }
-        .folder::before {
-            content: "📁 ";
-        }
-        .file::before {
-            content: "📄 ";
-        }
+      #explorador {
+        display: flex;
+        gap: 32px;
+        margin-top: 24px;
+        flex-wrap: wrap;
+      }
+      .carpeta-raiz {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        min-width: 200px;
+        margin-right: 16px;
+      }
+      .carpeta-titulo {
+        font-size: 1.2em;
+        font-weight: bold;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        margin-bottom: 6px;
+      }
+      .carpeta-titulo .icono-carpeta {
+        font-size: 1.5em;
+        margin-right: 8px;
+      }
+      .hijos-carpeta {
+        margin-left: 24px;
+        margin-top: 4px;
+        border-left: 1px solid #ddd;
+        padding-left: 10px;
+      }
+      .item-carpeta, .item-archivo {
+        display: flex;
+        align-items: center;
+        font-size: 1em;
+        margin: 4px 0;
+        cursor: pointer;
+      }
+      .item-carpeta .icono-carpeta,
+      .item-archivo .icono-archivo {
+        font-size: 1.2em;
+        margin-right: 8px;
+      }
+      .item-carpeta:hover, .item-archivo:hover {
+        background: #f0f4fa;
+        border-radius: 4px;
+      }
     </style>
 </head>
 <body>
@@ -28,7 +60,7 @@
     <script src="script/cascada.js"></script>
 </body>
 </html>
-
+  
   <script>
     // Obtener todos los elementos con clase folder
     const folders = document.querySelectorAll(".folder");
@@ -42,6 +74,8 @@
       });
     });
   </script>
+
+  <div id="explorador" class="explorador-cascada"></div>
 
   </body>
 
