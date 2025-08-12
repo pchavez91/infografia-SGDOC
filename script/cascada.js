@@ -12,7 +12,6 @@ function buildTree(elements, parentId = 0) {
     return branch;
 }
 
-// Suponiendo que recibes data.data (el arreglo plano)
 const treeData = buildTree(data.data);
 
 // Función para renderizar el árbol (simplificado)

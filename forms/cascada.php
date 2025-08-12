@@ -1,101 +1,75 @@
 <!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8" />
-<title>Explorador de carpetas en cascada</title>
-<style>
-ul {
-  list-style-type: none;
-  padding-left: 20px;
-}
-
-li {
-  cursor: pointer;
-  user-select: none;
-  font-size: 18px;      /* Tamaño de letra más grande */
-  margin: 4px 0;        /* Espacio vertical entre ítems */
-  line-height: 1.4;     /* Altura de línea para mejor lectura */
-}
-
-.folder::before {
-  content: "📁 ";
-  font-size: 80px;      /* Ícono más grande */
-  margin-right: 6px;
-}
-
-.file::before {
-  content: "📄 ";
-  font-size: 20px;
-  margin-right: 6px;
-}
-
-.nested {
-  display: none;
-}
-
-.active {
-  display: block;
-}
-</style>
-</head>
-<body>
-
-<h2>Explorador de Carpetas</h2>
-
-<div id="contenedor"></div>
-
-<script>
-// Ejemplo: llamada fetch a tu PHP que devuelve JSON (ajusta la URL)
-fetch('json/json.php?accion=consulta_directorio_completo')
-  .then(response => response.json())
-  .then(data => {
-    const treeData = buildTree(data.data);
-    document.getElementById('contenedor').innerHTML = renderTree(treeData);
-    addToggleListeners();
-  });
-
-// Convierte el arreglo plano a estructura de árbol
-function buildTree(elements, parentId = 0) {
-  const branch = [];
-  elements.forEach(el => {
-    if (el.id_padre == parentId) {
-      const children = buildTree(elements, el.id);
-      if (children.length) el.children = children;
-      branch.push(el);
+<html lang="es"> 
+  
+  <head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Explorador de Carpetas en Cascada</title>
+  <style>
+    ul {
+      list-style-type: none;
+      padding-left: 20px;
     }
-  });
-  return branch;
-}
-
-// Renderiza la estructura de árbol en UL / LI
-function renderTree(nodes) {
-  let html = '<ul>';
-  nodes.forEach(node => {
-    const isFolder = node.tipo_elemento === 'carpeta';  // O el valor que uses para carpeta
-    html += `<li>
-      <span class="${isFolder ? 'folder' : 'file'}">${node.nombre_elemento}</span>`;
-    if (isFolder && node.children) {
-      html += `<ul class="nested">${renderTree(node.children)}</ul>`;
+    .folder, .file {
+      cursor: pointer;
+      user-select: none;
     }
-    html += '</li>';
-  });
-  html += '</ul>';
-  return html;
-}
+    .folder::before {
+      content: "📁 ";
+    }
+    .file::before {
+      content: "📄 ";
+    }
+    .nested {
+      display: none;
+    }
+    .active {
+      display: block;
+    }
+  </style>
+  </head>
+  <body>
 
-// Añade funcionalidad toggle (expandir/colapsar carpetas)
-function addToggleListeners() {
-  const folders = document.querySelectorAll('.folder');
-  folders.forEach(folder => {
-    folder.addEventListener('click', function(e) {
-      e.stopPropagation();
-      const nextUl = this.nextElementSibling;
-      if (!nextUl) return;
-      nextUl.classList.toggle('active');
+  <h2>Explorador de Carpetas en Cascada</h2>
+
+  <ul id="fileTree">
+    <li>
+      <span class="folder">Carpeta 1</span>
+      <ul class="nested">
+        <li><span class="file">Archivo 1-1.txt</span></li>
+        <li><span class="file">Archivo 1-2.txt</span></li>
+        <li>
+          <span class="folder">Subcarpeta 1-1</span>
+          <ul class="nested">
+            <li><span class="file">Archivo 1-1-1.txt</span></li>
+            <li><span class="file">Archivo 1-1-2.txt</span></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <span class="folder">Carpeta 2</span>
+      <ul class="nested">
+        <li><span class="file">Archivo 2-1.txt</span></li>
+      </ul>
+    </li>
+    <li><span class="file">Archivo raíz.txt</span></li>
+  </ul>
+
+  <script>
+    // Obtener todos los elementos con clase folder
+    const folders = document.querySelectorAll(".folder");
+    folders.forEach(folder => {
+      folder.addEventListener("click", () => {
+        // Alternar mostrar/ocultar la lista anidada (subcarpetas y archivos)
+        const nested = folder.nextElementSibling;
+        if (nested) {
+          nested.classList.toggle("active");
+        }
+      });
     });
-  });
-}
-</script>
+  </script>
 
-</body>
+  </body>
+
 </html>
