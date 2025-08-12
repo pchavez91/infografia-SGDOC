@@ -32,7 +32,7 @@
       .hijos-carpeta {
         margin-left: 24px;
         margin-top: 4px;
-        border-left: 1px solid #ddd;
+        border-left: 2px solid #e0e0e0;
         padding-left: 10px;
       }
       .item-carpeta, .item-archivo {

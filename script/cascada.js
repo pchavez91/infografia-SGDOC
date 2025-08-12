@@ -37,10 +37,14 @@ function renderCarpetasRaiz(roots) {
     div.appendChild(hijos);
 
     // Mostrar/ocultar hijos al hacer click
-    titulo.onclick = () => {
-      hijos.style.display = hijos.style.display === 'none' ? '' : 'none';
-      if (hijos.innerHTML === '') {
+    titulo.onclick = function(e) {
+      e.stopPropagation();
+      if (hijos.style.display === 'none') {
+        hijos.style.display = '';
+        hijos.innerHTML = ''; // Limpia antes de renderizar
         hijos.appendChild(renderHijos(root.children));
+      } else {
+        hijos.style.display = 'none';
       }
     };
 
@@ -51,28 +55,34 @@ function renderCarpetasRaiz(roots) {
 function renderHijos(nodes) {
   const cont = document.createElement('div');
   nodes.forEach(node => {
-    if (node.tipo_elemento === 'carpeta') {
+    if (node.tipo_elemento == 1) { // Es carpeta
       const carpeta = document.createElement('div');
       carpeta.className = 'item-carpeta';
       carpeta.innerHTML = `<span class="icono-carpeta">📁</span> ${node.nombre_elemento}`;
+
       // Subcarpetas
       const hijos = document.createElement('div');
       hijos.className = 'hijos-carpeta';
       hijos.style.display = 'none';
-      carpeta.onclick = (e) => {
+      carpeta.appendChild(hijos);
+
+      carpeta.onclick = function(e) {
         e.stopPropagation();
-        hijos.style.display = hijos.style.display === 'none' ? '' : 'none';
-        if (hijos.innerHTML === '') {
+        if (hijos.style.display === 'none') {
+          hijos.style.display = '';
+          hijos.innerHTML = ''; // Limpia antes de renderizar
           hijos.appendChild(renderHijos(node.children));
+        } else {
+          hijos.style.display = 'none';
         }
       };
-      carpeta.appendChild(hijos);
+
       cont.appendChild(carpeta);
-    } else {
+    } else if (node.tipo_elemento == 0) { // Es archivo
       const archivo = document.createElement('div');
       archivo.className = 'item-archivo';
       archivo.innerHTML = `<span class="icono-archivo">📄</span> ${node.nombre_elemento}`;
-      archivo.onclick = (e) => {
+      archivo.onclick = function(e) {
         e.stopPropagation();
         if (node.codigo_archivo) {
           window.open('ruta/a/archivos/' + node.codigo_archivo, '_blank');
