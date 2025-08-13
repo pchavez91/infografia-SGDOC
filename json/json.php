@@ -3821,17 +3821,32 @@ if($accion=='consulta_directorio_atras_general'){
 }
 
 if($accion == 'consulta_directorio_completo') {
-    $id_padre = isset($_GET['id_padre']) ? intval($_GET['id_padre']) : 0; // valor por defecto 0
+    $id_padre = intval($_GET['id_padre']);
     $codigo_cargo = $_SESSION['cod_cargo'];
 
-    $sql = "SELECT nombre_elemento, nivel_acceso, codigo_archivo,
-                   CASE WHEN nomesclatura = '' THEN nombre_elemento ELSE nomesclatura + ' - ' + nombre_elemento END AS nombre_nomesclatura,
-                   nomesclatura, id, id_padre, tipo_elemento, extencion_elemento, REPLACE(ruta, '/', ' > ') as ruta
-            FROM BDflexline.TI.base_repositorio
-            WHERE vigencia = 'SI' 
-              AND (estado_gestion = 'OK' OR estado_gestion IS NULL)
-              AND id_padre = '$id_padre'
-            ORDER BY nombre_nomesclatura";
+    $sql = "SELECT 
+					nombre_elemento, 
+					nivel_acceso, 
+					codigo_archivo,
+					CASE 
+						WHEN nomesclatura = '' THEN nombre_elemento 
+						ELSE nomesclatura + ' - ' + nombre_elemento 
+					END AS nombre_nomesclatura,
+					nomesclatura, 
+					id, 
+					id_padre, 
+					tipo_elemento, 
+					extencion_elemento, 
+					REPLACE(ruta, '/', ' > ') AS ruta
+				FROM 
+					BDflexline.TI.base_repositorio
+				WHERE 
+					vigencia = 'SI' 
+					AND (estado_gestion = 'OK' OR estado_gestion IS NULL)
+					AND id_padre = $id_padre
+					AND tipo_elemento IN (0, 1)
+				ORDER BY 
+					nombre_nomesclatura";
 
     $RESP = mssql_query($sql, $link);
     $arreglo = [];

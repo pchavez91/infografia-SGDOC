@@ -5,53 +5,43 @@
     <title>Explorador de Archivos en Cascada</title>
     <style>
       #explorador {
-        display: flex;
-        gap: 32px;
         margin-top: 24px;
-        flex-wrap: wrap;
-      }
-      .carpeta-raiz {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        min-width: 200px;
-        margin-right: 16px;
-      }
-      .carpeta-titulo {
-        font-size: 1.2em;
-        font-weight: bold;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        margin-bottom: 6px;
-      }
-      .carpeta-titulo .icono-carpeta {
-        font-size: 1.5em;
-        margin-right: 8px;
-      }
-      .hijos-carpeta {
-        margin-left: 24px;
-        margin-top: 4px;
-        border-left: 2px solid #e0e0e0;
-        padding-left: 10px;
-        background-color: #f9f9f9; 
+        padding-left: 20px;
       }
 
       .item-carpeta, .item-archivo {
-        display: flex;
-        align-items: center;
+        position: relative;
+        margin: 12px 0;
+        padding-left: 20px;
         font-size: 1em;
-        margin: 4px 0;
         cursor: pointer;
       }
-      .item-carpeta .icono-carpeta,
-      .item-archivo .icono-archivo {
-        font-size: 1.2em;
-        margin-right: 8px;
+
+      .item-carpeta::before, .item-archivo::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 12px;
+        height: 100%;
+        border-left: 2px solid #ccc;
       }
-      .item-carpeta:hover, .item-archivo:hover {
-        background: #f0f4fa;
-        border-radius: 4px;
+
+      .item-carpeta::after {
+        content: "";
+        position: absolute;
+        top: 12px;
+        left: 0;
+        width: 20px;
+        height: 0;
+        border-top: 2px solid #ccc;
+      }
+
+      .hijos-carpeta {
+        margin-left: 20px;
+        padding-left: 10px;
+        border-left: 2px solid #ccc;
+        display: none;
       }
     </style>
 </head>
