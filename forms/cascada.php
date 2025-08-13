@@ -55,12 +55,32 @@
 </head>
 <body>
     <h2>Explorador de Archivos</h2>
-    <div id="explorador"></div>
+    
 
     <script src="script/cascada.js"></script>
 </body>
 </html>
-  
+
+  <button type="button" class="btn btn-info" onclick="abrir_modal()">Abrir Explorador</button>
+
+  <div class="modal fade" id="abrir_modal_explorador" tabindex="-1" role="dialog" aria-labelledby="modalLabel">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalLabel">Explorador de Archivos</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+           <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          
+          <div id="explorador" class="explorador-cascada"></div>
+        
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
     // Obtener todos los elementos con clase folder
     const folders = document.querySelectorAll(".folder");
@@ -75,7 +95,7 @@
     });
   </script>
 
-  <div id="explorador" class="explorador-cascada"></div>
+
 
   </body>
 

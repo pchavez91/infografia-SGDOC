@@ -1,3 +1,4 @@
+/*
 function buildTree(data) {
   const map = {};
   const roots = [];
@@ -10,7 +11,7 @@ function buildTree(data) {
     }
   });
   data.forEach(item => {
-    if (!item.id_padre || item.id_padre == 0) {
+    if (!item.id_padre || item.id_padre == 3858) {
       roots.push(map[item.id]);
     }
   });
@@ -101,3 +102,87 @@ fetch('json/json.php?accion=consulta_directorio_completo')
     const roots = buildTree(json.data);
     renderCarpetasRaiz(roots);
   });
+
+// Modal para el explorador de archivos
+function abrir_modal() {
+    const contenedor = document.getElementById('explorador');
+    contenedor.innerHTML = '<p>Cargando...</p>';
+
+    fetch('json/json.php?accion=consulta_directorio_completo')
+      .then(res => res.json())
+      .then(json => {
+          // Si tu JSON es un array plano
+          const roots = buildTree(Array.isArray(json) ? json : json.data);
+          renderCarpetasRaiz(roots);
+      })
+      .catch(err => {
+          contenedor.innerHTML = '<p>Error al cargar datos</p>';
+          console.error('Error cargando carpetas:', err);
+      });
+
+    $("#abrir_modal_explorador").modal('show');
+}
+
+function cargarHijos(idPadre, contenedor) {
+    fetch(`json/json.php?accion=consulta_directorio_completo&id_padre=${idPadre}`)
+        .then(resp => resp.json())
+        .then(data => {
+            data.data.forEach(item => {
+                const nodo = document.createElement("div");
+                nodo.textContent = item.nombre_nomesclatura;
+                nodo.classList.add("carpeta");
+                nodo.onclick = () => cargarHijos(item.id, nodo);
+                contenedor.appendChild(nodo);
+            });
+        });
+}
+
+*/
+
+function abrir_modal(idBase = 3858) { // idBase = Biblioteca General
+    const contenedor = document.getElementById('explorador');
+    contenedor.innerHTML = '';
+    cargarHijos(idBase, contenedor);
+
+    $("#abrir_modal_explorador").modal('show');
+}
+
+function cargarHijos(idPadre, contenedor) {
+    fetch(`json/json.php?accion=consulta_directorio_completo&id_padre=${idPadre}`)
+        .then(resp => resp.json())
+        .then(data => {
+            data.data.forEach(item => {
+                const nodo = document.createElement('div');
+                nodo.classList.add(item.tipo_elemento == 1 ? 'item-carpeta' : 'item-archivo');
+                nodo.innerHTML = item.tipo_elemento == 1 
+                    ? `<span class="icono-carpeta">📁</span> ${item.nombre_elemento}`
+                    : `<span class="icono-archivo">📄</span> ${item.nombre_elemento}`;
+
+                // Si es carpeta, hacer clic para cargar hijos
+                if(item.tipo_elemento == 1) {
+                    const hijosCont = document.createElement('div');
+                    hijosCont.classList.add('hijos-carpeta');
+                    hijosCont.style.display = 'none';
+                    nodo.appendChild(hijosCont);
+
+                    nodo.onclick = (e) => {
+                        e.stopPropagation();
+                        if(hijosCont.style.display === 'none') {
+                            hijosCont.style.display = '';
+                            cargarHijos(item.id, hijosCont);
+                        } else {
+                            hijosCont.style.display = 'none';
+                        }
+                    };
+                } else if(item.tipo_elemento == 0 && item.codigo_archivo) {
+                    nodo.onclick = (e) => {
+                        e.stopPropagation();
+                        window.open('ruta/a/archivos/' + item.codigo_archivo, '_blank');
+                    };
+                }
+
+                contenedor.appendChild(nodo);
+            });
+        })
+        .catch(err => console.error('Error cargando hijos:', err));
+}
