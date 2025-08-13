@@ -34,7 +34,9 @@
         margin-top: 4px;
         border-left: 2px solid #e0e0e0;
         padding-left: 10px;
+        background-color: #f9f9f9; 
       }
+
       .item-carpeta, .item-archivo {
         display: flex;
         align-items: center;

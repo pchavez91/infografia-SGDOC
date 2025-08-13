@@ -139,11 +139,10 @@ function cargarHijos(idPadre, contenedor) {
 
 */
 
-function abrir_modal(idBase = 3858) { // idBase = Biblioteca General
+function abrir_modal(idBase = 3844) { 
     const contenedor = document.getElementById('explorador');
     contenedor.innerHTML = '';
     cargarHijos(idBase, contenedor);
-
     $("#abrir_modal_explorador").modal('show');
 }
 
@@ -152,33 +151,40 @@ function cargarHijos(idPadre, contenedor) {
         .then(resp => resp.json())
         .then(data => {
             data.data.forEach(item => {
+                // Evitar duplicados globalmente
+                if (contenedor.querySelector(`[data-id="${item.id}"]`)) return;
+
+
                 const nodo = document.createElement('div');
                 nodo.classList.add(item.tipo_elemento == 1 ? 'item-carpeta' : 'item-archivo');
+                nodo.dataset.id = item.id;
                 nodo.innerHTML = item.tipo_elemento == 1 
                     ? `<span class="icono-carpeta">📁</span> ${item.nombre_elemento}`
                     : `<span class="icono-archivo">📄</span> ${item.nombre_elemento}`;
 
-                // Si es carpeta, hacer clic para cargar hijos
-                if(item.tipo_elemento == 1) {
+                if (item.tipo_elemento == 1) {
                     const hijosCont = document.createElement('div');
                     hijosCont.classList.add('hijos-carpeta');
                     hijosCont.style.display = 'none';
+
                     nodo.appendChild(hijosCont);
 
-                    nodo.onclick = (e) => {
+                    nodo.addEventListener('click', (e) => {
                         e.stopPropagation();
-                        if(hijosCont.style.display === 'none') {
-                            hijosCont.style.display = '';
-                            cargarHijos(item.id, hijosCont);
+                        if (hijosCont.style.display === 'none') {
+                            hijosCont.style.display = 'block';
+                            if (hijosCont.children.length === 0) {
+                                cargarHijos(item.id, hijosCont); 
+                            }
                         } else {
                             hijosCont.style.display = 'none';
                         }
-                    };
-                } else if(item.tipo_elemento == 0 && item.codigo_archivo) {
-                    nodo.onclick = (e) => {
+                    });
+                } else if (item.tipo_elemento == 0 && item.codigo_archivo) {
+                    nodo.addEventListener('click', (e) => {
                         e.stopPropagation();
                         window.open('ruta/a/archivos/' + item.codigo_archivo, '_blank');
-                    };
+                    });
                 }
 
                 contenedor.appendChild(nodo);

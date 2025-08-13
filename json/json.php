@@ -3830,7 +3830,7 @@ if($accion == 'consulta_directorio_completo') {
             FROM BDflexline.TI.base_repositorio
             WHERE vigencia = 'SI' 
               AND (estado_gestion = 'OK' OR estado_gestion IS NULL)
-              AND id_padre = 3858
+              AND id_padre = '$id_padre'
             ORDER BY nombre_nomesclatura";
 
     $RESP = mssql_query($sql, $link);
