@@ -1,6 +1,6 @@
 
 
-function abrir_modal(idBase = 3844) { 
+function abrir_modal(idBase = 2671) { 
     const contenedor = document.getElementById('explorador');
     contenedor.innerHTML = '';
     cargarHijos(idBase, contenedor);
