@@ -5,8 +5,15 @@
     <title>Explorador de Archivos en Cascada</title>
     <style>
       #explorador {
-        margin-top: 24px;
-        padding-left: 20px;
+        width: 600px;
+        height: 400px;
+        overflow-y: auto;
+        margin: 24px;
+        padding: 20px;
+        background-color: #f9f9f9;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        font-family: 'Segoe UI', sans-serif;
       }
 
       .item-carpeta, .item-archivo {
@@ -17,30 +24,31 @@
         cursor: pointer;
       }
 
+      /* Línea vertical */
       .item-carpeta::before, .item-archivo::before {
         content: "";
         position: absolute;
         top: 0;
         left: 0;
-        width: 12px;
+        width: 14px;
         height: 100%;
-        border-left: 2px solid #ccc;
+        border-left: 3px solid #000000ff;
       }
 
+      /* Línea horizontal */
       .item-carpeta::after {
         content: "";
         position: absolute;
-        top: 12px;
+        top: 16px;
         left: 0;
-        width: 20px;
+        width: 24px;
         height: 0;
-        border-top: 2px solid #ccc;
+        border-top: 3px solid #000000ff;
       }
 
       .hijos-carpeta {
-        margin-left: 20px;
-        padding-left: 10px;
-        border-left: 2px solid #ccc;
+        margin-left: 28px;
+        padding-left: 12px;
         display: none;
       }
     </style>
@@ -48,7 +56,6 @@
 <body>
     <h2>Explorador de Archivos</h2>
     
-
     <script src="script/cascada.js"></script>
 </body>
 </html>
