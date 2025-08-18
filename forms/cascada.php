@@ -55,11 +55,12 @@
   </head>
   <body>
     <h2>Explorador de Archivos</h2>
+    
+
+    <div id="botonesExplorador" class="mb-3"></div>
       
     <script src="script/cascada.js"></script>
   </body>
-
-  <button type="button" class="btn btn-info" onclick="abrir_modal()">Abrir Explorador</button>
 
   <div class="modal fade" id="abrir_modal_explorador" tabindex="-1" role="dialog" aria-labelledby="modalLabel">
     <div class="modal-dialog modal-lg" role="document">

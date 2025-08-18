@@ -1,4 +1,10 @@
-function abrir_modal(idBase = 1) {
+
+
+
+
+
+
+function abrir_modal(idBase) {
   const contenedor = document.getElementById('explorador');
   contenedor.innerHTML = '';
   cargarHijos(idBase, contenedor);
@@ -49,3 +55,52 @@ function cargarHijos(idPadre, contenedor) {
     })
     .catch(err => console.error('Error cargando hijos:', err));
 }
+
+// botones dinamicos
+$(function () {
+  cargarBases();
+
+  // Delegamos el click de los botones de base
+  $('#botonesExplorador').on('click', 'button.base-btn', function () {
+    const idBase = $(this).data('id');
+    abrir_modal(idBase);
+  });
+});
+
+
+//botones dinamicos
+function cargarBases() {
+  const $cont = $('#botonesExplorador').empty();
+
+  $.ajax({
+    url: 'json/json.php',
+    method: 'POST',
+    dataType: 'json',
+    data: { accion: 'consulta_bases' },   
+    success: function (resp) {
+      const bases = resp.bases || [];
+
+      if (bases.length === 0) {
+        $cont.text('No hay bases disponibles.');
+        return;
+      }
+
+      bases.forEach(function (base) {
+        const $btn = $('<button>')
+          .addClass('base-btn btn btn-sm btn-outline-primary m-1')
+          .text(base.nombre)             
+          .attr('data-id', base.id);
+
+        $cont.append($btn);
+      });
+    },
+    error: function () {
+      $cont.text('Error al cargar las bases.');
+    }
+  });
+}
+
+
+
+
+

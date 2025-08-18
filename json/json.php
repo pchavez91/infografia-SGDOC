@@ -3820,6 +3820,28 @@ if($accion=='consulta_directorio_atras_general'){
    			
 }
 
+if ($accion == 'consulta_bases') {
+    global $link; // si tu conexión está en $link
+    $sql = "SELECT id, nombre_elemento 
+            FROM [BDflexline].[TI].[base_repositorio] 
+            WHERE id_padre = 0 AND tipo_elemento = 1
+            ORDER BY nombre_elemento";
+
+    $res = mssql_query($sql, $link);
+    $bases = [];
+
+    while ($row = mssql_fetch_array($res)) {
+        $bases[] = [
+            "id" => $row['id'],
+            "nombre" => $row['nombre_elemento']
+        ];
+    }
+
+    header('Content-Type: application/json');
+    echo json_encode(["bases" => $bases]);
+    exit;
+}
+
 
 
 if($accion == 'consulta_directorio_completo') {
