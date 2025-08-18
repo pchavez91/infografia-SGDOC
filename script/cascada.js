@@ -1,12 +1,19 @@
-
-function abrir_modal(idBase) {
-  
+//Abrir modal y actualizar título
+function abrir_modal(idBase, nombreBase) {
+  const titulo = document.getElementById('modalLabel');
+  if (!titulo) {
+    console.error('No se encontró #modalLabel en el DOM');
+    return;
+  }
+  titulo.textContent = nombreBase;
   const contenedor = document.getElementById('explorador');
   contenedor.innerHTML = '';
   cargarHijos(idBase, contenedor);
   $('#abrir_modal_explorador').modal('show');
 }
 
+
+// Carga recursiva de hijos
 function cargarHijos(idPadre, contenedor) {
   fetch(`json/json.php?accion=consulta_directorio_completo&id_padre=${idPadre}`)
     .then(resp => resp.json())
@@ -15,7 +22,9 @@ function cargarHijos(idPadre, contenedor) {
         if (contenedor.querySelector(`[data-id="${item.id}"]`)) return;
 
         const nodo = document.createElement('div');
-        nodo.classList.add(item.tipo_elemento == 1 ? 'item-carpeta' : 'item-archivo');
+        nodo.classList.add(item.tipo_elemento == 1
+          ? 'item-carpeta'
+          : 'item-archivo');
         nodo.dataset.id = item.id;
         nodo.innerHTML = item.tipo_elemento == 1
           ? `<span class="icono-carpeta">📁</span> ${item.nombre_elemento}`
@@ -52,19 +61,19 @@ function cargarHijos(idPadre, contenedor) {
     .catch(err => console.error('Error cargando hijos:', err));
 }
 
-// botones dinamicos
+
+//botones dinamicos
 $(function () {
   cargarBases();
 
-  // Delegamos el click de los botones de base
   $('#botonesExplorador').on('click', 'button.base-btn', function () {
-    const idBase = $(this).data('id');
-    abrir_modal(idBase);
+    const idBase     = $(this).data('id');
+    const nombreBase = $(this).data('nombre');
+    abrir_modal(idBase, nombreBase);
   });
 });
 
 
-//botones dinamicos
 function cargarBases() {
   const $cont = $('#botonesExplorador').empty();
 
@@ -72,7 +81,7 @@ function cargarBases() {
     url: 'json/json.php',
     method: 'POST',
     dataType: 'json',
-    data: { accion: 'consulta_bases' },   
+    data: { accion: 'consulta_bases' },
     success: function (resp) {
       const bases = resp.bases || [];
 
@@ -84,8 +93,9 @@ function cargarBases() {
       bases.forEach(function (base) {
         const $btn = $('<button>')
           .addClass('base-btn btn btn-sm btn-outline-primary m-1')
-          .text(base.nombre)             
-          .attr('data-id', base.id);
+          .text(base.nombre)               
+          .attr('data-id', base.id)
+          .attr('data-nombre', base.nombre);
 
         $cont.append($btn);
       });
@@ -95,8 +105,3 @@ function cargarBases() {
     }
   });
 }
-
-
-
-
-
