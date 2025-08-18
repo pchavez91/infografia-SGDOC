@@ -3824,7 +3824,7 @@ if ($accion == 'consulta_bases') {
     global $link; // si tu conexión está en $link
     $sql = "SELECT id, nombre_elemento 
             FROM [BDflexline].[TI].[base_repositorio] 
-            WHERE id_padre = 0 AND tipo_elemento = 1
+            WHERE id_padre = 3845 AND tipo_elemento = 1
             ORDER BY nombre_elemento";
 
     $res = mssql_query($sql, $link);

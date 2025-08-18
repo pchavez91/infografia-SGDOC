@@ -128,15 +128,18 @@ function cargarBases() {
         return;
       }
 
-      bases.forEach(function (base) {
+      bases.forEach(function (base, index) {
+        const colorClass = `color-${(index % 6) + 1}`; // Cicla entre 6 colores
+
         const $btn = $('<button>')
-          .addClass('base-btn btn btn-sm btn-outline-primary m-1')
-          .text(base.nombre)               
+          .addClass(`base-btn boton-caja ${colorClass}`) // NUEVO estilo
+          .text(base.nombre)
           .attr('data-id', base.id)
           .attr('data-nombre', base.nombre);
 
         $cont.append($btn);
       });
+
     },
     error: function () {
       $cont.text('Error al cargar las bases.');

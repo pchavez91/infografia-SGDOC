@@ -71,12 +71,46 @@
     .nombre-elemento {
       flex: 1;
     }
+
+    #botonesExplorador {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .boton-caja {
+      padding: 14px 20px;
+      border-radius: 10px;
+      font-weight: bold;
+      color: white;
+      cursor: pointer;
+      text-align: center;
+      border: none;
+      box-shadow: 2px 2px 6px rgba(0,0,0,0.1);
+      transition: transform 0.2s ease;
+    }
+
+    .boton-caja:hover {
+      transform: scale(1.05);
+    }
+
+    /* Colores */
+    .color-1 { background-color: #4CAF50; }  /* verde */
+    .color-2 { background-color: #2196F3; }  /* azul */
+    .color-3 { background-color: #FF9800; }  /* naranja */
+    .color-4 { background-color: #9C27B0; }  /* violeta */
+    .color-5 { background-color: #F44336; }  /* rojo */
+    .color-6 { background-color: #00BCD4; }  /* turquesa */
+
     </style>
   </head>
   <body>
-    <h2>Explorador de Archivos</h2>
+    <center>
+      <h2>Explorador de Archivos</h2><br>
 
-    <div id="botonesExplorador" class="mb-3"></div>
+      <div id="botonesExplorador" class="mb-3"></div>
+    
+    </center>
       
     <script src="script/cascada.js"></script>
   </body>
