@@ -3821,7 +3821,7 @@ if($accion=='consulta_directorio_atras_general'){
 }
 
 if ($accion == 'consulta_bases') {
-    global $link; // si tu conexión está en $link
+    global $link;
     $sql = "SELECT id, nombre_elemento 
             FROM [BDflexline].[TI].[base_repositorio] 
             WHERE id_padre = 3845 AND tipo_elemento = 1
@@ -3844,31 +3844,61 @@ if ($accion == 'consulta_bases') {
 
 
 
-if($accion == 'consulta_directorio_completo') {
+if ($accion == 'consulta_directorio_completo') {
     $id_padre = intval($_GET['id_padre']);
     $codigo_cargo = $_SESSION['cod_cargo'];
 
-    $sql = "SELECT  nombre_elemento, nivel_acceso, codigo_archivo,
-					CASE 
-						WHEN nomesclatura = '' THEN nombre_elemento 
-						ELSE nomesclatura + ' - ' + nombre_elemento 
-					END AS nombre_nomesclatura,
-					nomesclatura, id, id_padre, tipo_elemento, extencion_elemento, 
-					REPLACE(ruta, '/', ' > ') AS ruta
-				FROM BDflexline.TI.base_repositorio
-				WHERE vigencia = 'SI' 
-					AND (estado_gestion = 'OK' OR estado_gestion IS NULL)
-					AND id_padre = $id_padre
-					AND tipo_elemento IN (0, 1)
-				ORDER BY nombre_nomesclatura";
+    $sql = "SELECT nombre_elemento, nivel_acceso, codigo_archivo,
+                   CASE 
+                       WHEN nomesclatura = '' THEN nombre_elemento 
+                       ELSE nomesclatura + ' - ' + nombre_elemento 
+                   END AS nombre_nomesclatura,
+                   nomesclatura, id, id_padre, tipo_elemento, extencion_elemento, 
+                   REPLACE(ruta, '/', ' > ') AS ruta
+            FROM BDflexline.TI.base_repositorio
+            WHERE vigencia = 'SI' 
+              AND (estado_gestion = 'OK' OR estado_gestion IS NULL)
+              AND id_padre = $id_padre
+              AND tipo_elemento IN (0, 1)
+            ORDER BY nombre_nomesclatura";
 
     $RESP = mssql_query($sql, $link);
     $arreglo = [];
 
-    while($ROW = mssql_fetch_array($RESP)) {
+    while ($ROW = mssql_fetch_array($RESP)) {
         $nivel_acceso = $ROW['nivel_acceso'];
 
+        $permitido = false;
+
         if ($nivel_acceso == '4' || $nivel_acceso == '') {
+            $permitido = true;
+        } elseif ($nivel_acceso == '3') {
+            $sql_usuario = "SELECT TOP 1 nivel4, nivel3, nivel2, nivel1 
+                            FROM Seguridad.dbo.cargo 
+                            WHERE nivel3 = '$codigo_cargo' OR nivel2 = '$codigo_cargo' OR nivel1 = '$codigo_cargo'";
+            $r = mssql_query($sql_usuario, $link);
+            if (mssql_fetch_array($r)) {
+                $permitido = true;
+            }
+        } elseif ($nivel_acceso == '2') {
+            $sql_usuario2 = "SELECT TOP 1 nivel4, nivel3, nivel2, nivel1 
+                             FROM Seguridad.dbo.cargo 
+                             WHERE nivel2 = '$codigo_cargo' OR nivel1 = '$codigo_cargo'";
+            $r2 = mssql_query($sql_usuario2, $link);
+            if (mssql_fetch_array($r2)) {
+                $permitido = true;
+            }
+        } elseif ($nivel_acceso == '1') {
+            $sql_usuario3 = "SELECT TOP 1 nivel4, nivel3, nivel2, nivel1 
+                             FROM Seguridad.dbo.cargo 
+                             WHERE nivel1 = '$codigo_cargo'";
+            $r3 = mssql_query($sql_usuario3, $link);
+            if (mssql_fetch_array($r3)) {
+                $permitido = true;
+            }
+        }
+
+        if ($permitido) {
             $arreglo[] = [
                 "nombre_elemento" => utf8_encode($ROW['nombre_elemento']),
                 "nivel_acceso" => $nivel_acceso,
@@ -3888,6 +3918,7 @@ if($accion == 'consulta_directorio_completo') {
     echo json_encode(["data" => $arreglo]);
     exit;
 }
+
 
 
 
