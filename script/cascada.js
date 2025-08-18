@@ -12,6 +12,35 @@ function abrir_modal(idBase, nombreBase) {
   $('#abrir_modal_explorador').modal('show');
 }
 
+//funcion iconos
+function getIconHtml(item) {
+  // Carpeta
+  if (item.tipo_elemento == 1) {
+    return '<img src="img/ca.png" alt="Carpeta" class="icono" />';
+  }
+
+  // Mapea extensiones a nombres de archivo en img/
+  const ext = (item.extencion_elemento || '').toLowerCase();
+  let iconFile = 'otro.png'; // icono por defecto
+
+  switch (ext) {
+    case 'pdf':   iconFile = 'pdf.png';     break;
+    case 'xls':   iconFile = 'xls.png';     break;
+    case 'xlsx':  iconFile = 'xlsx.png';    break;
+    case 'excel': iconFile = 'excel.png';   break; // por si viene “excel”
+    case 'doc':   iconFile = 'docx.png';    break;
+    case 'docx':  iconFile = 'docx.png';    break;
+    case 'ppt':   iconFile = 'pptx.png';    break;
+    case 'pptx':  iconFile = 'pptx.png';    break;
+    case 'dwg':   iconFile = 'dwg.png';     break;
+    case 'server':iconFile = 'server2.png'; break;
+    case 'img':   iconFile = 'img.png';     break;
+    default:      iconFile = 'otro.png';    break;
+  }
+
+  return `<img src="img/${iconFile}" alt="${ext}" class="icono" />`;
+}
+
 
 // Carga recursiva de hijos
 function cargarHijos(idPadre, contenedor) {
@@ -19,48 +48,57 @@ function cargarHijos(idPadre, contenedor) {
     .then(resp => resp.json())
     .then(data => {
       data.data.forEach(item => {
+        // Evita duplicar nodos
         if (contenedor.querySelector(`[data-id="${item.id}"]`)) return;
 
+        // Crea el nodo
         const nodo = document.createElement('div');
-        nodo.classList.add(item.tipo_elemento == 1
-          ? 'item-carpeta'
-          : 'item-archivo');
+        nodo.classList.add(
+          item.tipo_elemento == 1
+            ? 'item-carpeta'
+            : 'item-archivo'
+        );
         nodo.dataset.id = item.id;
-        nodo.innerHTML = item.tipo_elemento == 1
-          ? `<span class="icono-carpeta">📁</span> ${item.nombre_elemento}`
-          : `<span class="icono-archivo">📄</span> ${item.nombre_elemento}`;
 
+        // Inserta icono + nombre
+        const iconHtml = getIconHtml(item);
+        nodo.innerHTML = `
+          ${iconHtml}
+          <span class="nombre-elemento">${item.nombre_elemento}</span>
+        `;
+
+        // Contenedor para hijos anidados
         const hijosCont = document.createElement('div');
         hijosCont.classList.add('hijos-carpeta');
         nodo.appendChild(hijosCont);
 
+        // Si es carpeta, clic expande/colapsa
         if (item.tipo_elemento == 1) {
           nodo.addEventListener('click', e => {
             e.stopPropagation();
-            const show = hijosCont.style.display !== 'block';
-            hijosCont.style.display = show ? 'block' : 'none';
-            if (show && hijosCont.children.length === 0) {
+            const abierto = hijosCont.style.display === 'block';
+            hijosCont.style.display = abierto ? 'none' : 'block';
+            if (!abierto && hijosCont.children.length === 0) {
               cargarHijos(item.id, hijosCont);
             }
           });
         }
 
+        // Si es archivo y tiene código, clic abre en nueva pestaña
         if (item.tipo_elemento == 0 && item.codigo_archivo) {
           nodo.addEventListener('click', e => {
             e.stopPropagation();
-            window.open(
-              `archivos_subidos/${item.codigo_archivo}.${item.extencion_elemento}`,
-              '_blank'
-            );
+            const ruta = `archivos_subidos/${item.codigo_archivo}.${item.extencion_elemento}`;
+            window.open(ruta, '_blank');
           });
         }
 
+        // Añade el nodo al contenedor
         contenedor.appendChild(nodo);
       });
     })
     .catch(err => console.error('Error cargando hijos:', err));
 }
-
 
 //botones dinamicos
 $(function () {

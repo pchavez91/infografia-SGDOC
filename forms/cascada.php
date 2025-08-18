@@ -1,57 +1,77 @@
 <!DOCTYPE html>
 <html lang="es">
   <head>
-      <meta charset="UTF-8">
-      <title>Explorador de Archivos en Cascada</title>
-      <style>
-        #explorador {
-          width: 100%;
-          height: 400px;
-          overflow-y: auto;
-          margin: 24px;
-          padding: 20px;
-          background-color: #f9f9f9;
-          border-radius: 8px;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-          font-family: 'Segoe UI', sans-serif;
-        }
+    <meta charset="UTF-8">
+    <title>Explorador de Archivos en Cascada</title>
+    <style>
+      #explorador {
+        width: 100%;
+        height: 400px;
+        overflow-y: auto;
+        margin: 24px;
+        padding: 20px;
+        background-color: #f9f9f9;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        font-family: 'Segoe UI', sans-serif;
+      }
 
-        .item-carpeta, .item-archivo {
-          position: relative;
-          margin: 12px 0;
-          padding-left: 20px;
-          font-size: 1em;
-          cursor: pointer;
-        }
+      .item-carpeta, .item-archivo {
+        position: relative;
+        margin: 12px 0;
+        padding-left: 4px 8px;
+        font-size: 1em;
+        cursor: pointer;
+      }
 
-        /* Línea vertical */
-        .item-carpeta::before, .item-archivo::before {
-          content: "";
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 14px;
-          height: 100%;
-          border-left: 3px solid #000000ff;
-        }
+      .item {
+        display: flex;
+        align-items: center; 
+        margin-left: 16px;   
+      }
 
-        /* Línea horizontal */
-        .item-carpeta::after {
-          content: "";
-          position: absolute;
-          top: 16px;
-          left: 0;
-          width: 24px;
-          height: 0;
-          border-top: 3px solid #000000ff;
-        }
+      .icono {
+        width: 60px;
+        height: 60px;
+        margin-right: 8px;
+        flex-shrink: 0;       
+      }
 
-        .hijos-carpeta {
-          margin-left: 28px;
-          padding-left: 12px;
-          display: none;
-        }
-      </style>
+
+
+      /* Línea vertical */
+      .item-carpeta::before,
+      .item-archivo::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -20px; 
+        width: 0;
+        height: 100%;
+        border-left: 4px solid #228B22;
+      }
+
+      /* Línea horizontal */
+      .item-carpeta::after {
+        content: "";
+        position: absolute;
+        top: 50%; 
+        left: -18px;
+        width: 18px;
+        border-top: 3px solid #228B22;
+        transform: translateY(-50%);
+      }
+
+
+      .hijos-carpeta {
+      padding-left: 3.8em;
+      display: none;
+      }
+
+    .nombre-elemento {
+      flex: 1;
+    }
+    </style>
   </head>
   <body>
     <h2>Explorador de Archivos</h2>
@@ -83,7 +103,6 @@
       </div>
     </div>
   </div>
-
 
   <script>
     // Obtener todos los elementos con clase folder
