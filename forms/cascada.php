@@ -55,7 +55,6 @@
   </head>
   <body>
     <h2>Explorador de Archivos</h2>
-    
 
     <div id="botonesExplorador" class="mb-3"></div>
       
@@ -67,15 +66,12 @@
       <div class="modal-content">
         <div class="modal-header" style="display: flex; align-items: center; justify-content: space-between;">
           
-          <!-- Logo alineado a la izquierda -->
           <img src="../../images/photos/logo_comasa_avatar.png" alt="Logo Comasa" style="height: 40px; margin-right: 10px;">
           
-          <!-- Título centrado -->
           <div style="flex-grow: 1; text-align: center;">
             <h2 class="modal-title" id="modalLabel" style="margin: 0;">Explorador de Archivos</h2>
           </div>
           
-          <!-- Botón de cierre -->
           <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="margin-left: 10px;">
             <span aria-hidden="true">&times;</span>
           </button>
