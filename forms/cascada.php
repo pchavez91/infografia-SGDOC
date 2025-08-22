@@ -68,54 +68,78 @@
       display: none;
       }
 
-    .nombre-elemento {
-      flex: 1;
-    }
-
+    /* Contenedor principal */
     #botonesExplorador {
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 40px; /* separación entre niveles */
     }
 
-    .nivel-1 {
+    /* Niveles jerárquicos */
+    .nivel {
       display: flex;
-      justify-content: center;      /* Centra el único botón */
-    }
-    .nivel-1 .boton-caja {
-      max-width: 140px;             /* Ancho fijo para dos palabras */
-      padding: 16px 24px;
-      font-size: 1.1em;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 16px;
+      position: relative;
     }
 
-    /* Niveles 2, 3 y 4: botones más pequeños */
-    .nivel-2 .boton-caja,
-    .nivel-3 .boton-caja,
-    .nivel-4 .boton-caja {
-      max-width: 120px;             /* Ajusta ancho para wrapping */
-      padding: 10px 14px;           /* Reduce tamaño */
-      font-size: 0.9em;
-    }
-
-    /* Conserva la indentación por nivel */
     .nivel-2 { margin-left: 40px; }
     .nivel-3 { margin-left: 80px; }
     .nivel-4 { margin-left: 120px; }
 
-    /* Botones */
+    /* Botones uniformes */
     .boton-caja {
-      white-space: normal;          /* Permite salto de línea */
-      word-wrap: break-word;        /* Rompe palabras largas */
-      text-align: center;           /* Centrado de cada línea */
-      box-sizing: border-box;       /* Padding incluido en ancho */
+      width: 170px;
+      height: 110px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 10px;
+      font-size: 1.1em;
+      line-height: 1.2em;
+      white-space: normal;
+      word-wrap: break-word;
+      box-sizing: border-box;
+      border-radius: 10px;
+      font-weight: bold;
+      color: white;
+      cursor: pointer;
+      border: none;
+      box-shadow: 2px 2px 6px rgba(0,0,0,0.1);
+      transition: transform 0.2s ease;
     }
-    .boton-caja:hover { transform: scale(1.05); }
+    .boton-caja:hover {
+      transform: scale(1.05);
+    }
 
-    /* Colores fijos por rol en la jerarquía */
-    .clr-alta      { background-color: #F44336; } /* rojo para Alta dirección */
-    .clr-subgerencia { background-color: #00BCD4; } /* celeste para subgerencias */
-    .clr-depto     { background-color: #FFC107; } /* amarillo oscuro para áreas */
-    .clr-formatos  { background-color: #4CAF50; } /* verde para Formatos Oficiales */
+    /* Colores fijos por rol */
+    .clr-alta        { background-color: #F44336; } /* rojo */
+    .clr-subgerencia { background-color: #00BCD4; } /* celeste */
+    .clr-depto       { background-color: #FFC107; } /* amarillo oscuro */
+    .clr-formatos    { background-color: #4CAF50; } /* verde */
+
+    
+    /* Línea vertical desde cada botón hacia la línea horizontal */
+    .nivel:not(.nivel-1) .boton-caja::before {
+      content: "";
+      position: absolute;
+      top: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 2px;
+      height: 20px;
+      background-color: #03f74cff;
+      z-index: 0;
+    }
+
+    /* Asegura que el texto dentro de cada botón esté alineado */
+    .nombre-elemento {
+      flex: 1;
+    }
+
+    
 
     </style>
   </head>
