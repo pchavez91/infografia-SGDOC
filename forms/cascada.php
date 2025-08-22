@@ -74,10 +74,22 @@
 
     #botonesExplorador {
       display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
+      flex-direction: column;
+      gap: 16px;
     }
 
+    /* Cada “nivel” de la jerarquía */
+    .nivel {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .nivel-1 { margin-left:   0px; }
+    .nivel-2 { margin-left:  40px; }
+    .nivel-3 { margin-left:  80px; }
+    .nivel-4 { margin-left: 120px; }
+
+    /* Botones */
     .boton-caja {
       padding: 14px 20px;
       border-radius: 10px;
@@ -89,18 +101,13 @@
       box-shadow: 2px 2px 6px rgba(0,0,0,0.1);
       transition: transform 0.2s ease;
     }
+    .boton-caja:hover { transform: scale(1.05); }
 
-    .boton-caja:hover {
-      transform: scale(1.05);
-    }
-
-    /* Colores */
-    .color-1 { background-color: #4CAF50; }  /* verde */
-    .color-2 { background-color: #2196F3; }  /* azul */
-    .color-3 { background-color: #FF9800; }  /* naranja */
-    .color-4 { background-color: #9C27B0; }  /* violeta */
-    .color-5 { background-color: #F44336; }  /* rojo */
-    .color-6 { background-color: #00BCD4; }  /* turquesa */
+    /* Colores fijos por rol en la jerarquía */
+    .clr-alta      { background-color: #F44336; } /* rojo para Alta dirección */
+    .clr-subgerencia { background-color: #00BCD4; } /* celeste para subgerencias */
+    .clr-depto     { background-color: #FFC107; } /* amarillo oscuro para áreas */
+    .clr-formatos  { background-color: #4CAF50; } /* verde para Formatos Oficiales */
 
     </style>
   </head>

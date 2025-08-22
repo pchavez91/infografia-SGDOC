@@ -122,27 +122,57 @@ function cargarBases() {
     data: { accion: 'consulta_bases' },
     success: function (resp) {
       const bases = resp.bases || [];
-
-      if (bases.length === 0) {
-        $cont.text('No hay bases disponibles.');
-        return;
+      if (!bases.length) {
+        return $cont.text('No hay bases disponibles.');
       }
 
-      bases.forEach(function (base, index) {
-        const colorClass = `color-${(index % 6) + 1}`; // Cicla entre 6 colores
+      // Estructura para agrupar botones por nivel
+      const grupos = {
+        1: [], // Alta dirección
+        2: [], // Subgerencias
+        3: [], // Áreas internas
+        4: []  // Formatos Oficiales
+      };
 
+      bases.forEach(base => {
+        const nombre = base.nombre.trim().toLowerCase();
+        let nivel, colorClass;
+
+        if (nombre === 'alta direccion') {
+          nivel = 1; colorClass = 'clr-alta';
+        }
+        else if (nombre.startsWith('subgerencia')) {
+          nivel = 2; colorClass = 'clr-subgerencia';
+        }
+        else if (nombre === 'formatos oficiales') {
+          nivel = 4; colorClass = 'clr-formatos';
+        }
+        else {
+          nivel = 3; colorClass = 'clr-depto';
+        }
+
+        // Crear botón y asignar datos
         const $btn = $('<button>')
-          .addClass(`base-btn boton-caja ${colorClass}`) // NUEVO estilo
+          .addClass(`base-btn boton-caja ${colorClass}`)
           .text(base.nombre)
           .attr('data-id', base.id)
           .attr('data-nombre', base.nombre);
 
-        $cont.append($btn);
+        grupos[nivel].push($btn);
       });
 
+      // Renderizar por niveles en orden
+      Object.keys(grupos)
+        .sort((a, b) => a - b)
+        .forEach(n => {
+          const $nivelDiv = $('<div>').addClass(`nivel nivel-${n}`);
+          grupos[n].forEach($btn => $nivelDiv.append($btn));
+          $cont.append($nivelDiv);
+        });
     },
     error: function () {
       $cont.text('Error al cargar las bases.');
     }
   });
 }
+
