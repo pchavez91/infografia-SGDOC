@@ -78,28 +78,36 @@
       gap: 16px;
     }
 
-    /* Cada “nivel” de la jerarquía */
-    .nivel {
+    .nivel-1 {
       display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
+      justify-content: center;      /* Centra el único botón */
     }
-    .nivel-1 { margin-left:   0px; }
-    .nivel-2 { margin-left:  40px; }
-    .nivel-3 { margin-left:  80px; }
+    .nivel-1 .boton-caja {
+      max-width: 140px;             /* Ancho fijo para dos palabras */
+      padding: 16px 24px;
+      font-size: 1.1em;
+    }
+
+    /* Niveles 2, 3 y 4: botones más pequeños */
+    .nivel-2 .boton-caja,
+    .nivel-3 .boton-caja,
+    .nivel-4 .boton-caja {
+      max-width: 120px;             /* Ajusta ancho para wrapping */
+      padding: 10px 14px;           /* Reduce tamaño */
+      font-size: 0.9em;
+    }
+
+    /* Conserva la indentación por nivel */
+    .nivel-2 { margin-left: 40px; }
+    .nivel-3 { margin-left: 80px; }
     .nivel-4 { margin-left: 120px; }
 
     /* Botones */
     .boton-caja {
-      padding: 14px 20px;
-      border-radius: 10px;
-      font-weight: bold;
-      color: white;
-      cursor: pointer;
-      text-align: center;
-      border: none;
-      box-shadow: 2px 2px 6px rgba(0,0,0,0.1);
-      transition: transform 0.2s ease;
+      white-space: normal;          /* Permite salto de línea */
+      word-wrap: break-word;        /* Rompe palabras largas */
+      text-align: center;           /* Centrado de cada línea */
+      box-sizing: border-box;       /* Padding incluido en ancho */
     }
     .boton-caja:hover { transform: scale(1.05); }
 
