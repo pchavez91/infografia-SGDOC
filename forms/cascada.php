@@ -123,11 +123,11 @@
       .nivel:not(.nivel-1) .boton-caja::before {
         content: "";
         position: absolute;
-        top: -20px;
+        top: -38px;
         left: 50%;
         transform: translateX(-50%);
-        width: 2px;
-        height: 20px;
+        width: 5px;
+        height: 36px;
         background-color: #03f74cff;
         z-index: 0;
       }
@@ -156,14 +156,14 @@
         cursor: pointer;
         position: absolute;
         top: -4px;
-        right: 10px;
+        right: -2px;
       }
 
     </style>
   </head>
   <body>
     <div class="panel-header">
-      <b><center>Explorador de archivos</center></b>
+      <b><center>EXPLORADOR DE ARCHIVOS</center></b>
       <img id="btnAyuda" onclick="abre_modal_ayuda()" src="IMAGENES/ayuda.png" alt="Ayuda" class="icono-ayuda" title="¿Necesitas ayuda?">
     </div>
     <br>
@@ -173,6 +173,65 @@
     <script src="script/cascada.js"></script>
     <script src="script/infografia.js"></script>
   </body>
+
+  <!-- VENTANA NUEVA AYUDA-->
+  <div id="ventana_de_ayuda" class="modal fade">
+    <div class="modal-dialog" style="width: 700px; max-width: 100%;">
+      <div class="modal-content" style="border-radius: 10px;">
+      
+        <div class="modal-header" style="background-color: #39b3d7; color: white;">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title" style="text-align: center;">EXPLORADOR DE ARCHIVOS</h4>
+        </div>
+
+        <div class="modal-body" style="padding: 20px;">
+
+          <!-- Paso 1 -->
+          <div id="paso1">
+            <p><b>Paso 1: Identifica la caja que necesitas</b></p>
+            <p>Cada caja de color representa una carpeta o área de trabajo dentro de la organización:</p>
+            <ul>
+              <li>🔴 Alta Dirección (nivel superior)</li>
+              <li>🔵 Subgerencias (áreas intermedias)</li>
+              <li>🟡 Departamentos (áreas específicas)</li>
+              <li>🟢 Formatos y Documentos (archivos finales)</li>
+            </ul>
+            <img src="IMAGENES/explorador_archivos_1.png" style="width: 100%; height: auto;">
+            <p>Haz clic en la caja para ver su contenido.</p>
+          </div>
+
+          <!-- Paso 2 -->
+          <div id="paso2" style="display: none;">
+            <p><b>Paso 2: Generación del código</b></p>
+            <ul>
+              <li>El sistema asigna un código automáticamente.</li>
+              <li>Verifica que sea correcto antes de guardar.</li>
+            </ul>
+            <img src="IMAGENES/explorador_archivos_2.png" style="width: 100%; height: auto;">
+          </div>
+
+          <!-- Paso 3 -->
+          <div id="paso3" style="display: none;">
+            <p><b>Paso 3: Guardar y finalizar</b></p>
+            <ul>
+              <li>Adjunta el documento y presiona "Guardar".</li>
+              <li>Revisa en la lista que tu archivo esté publicado.</li>
+            </ul>
+            <img src="IMAGENES/explorador_archivos_3" style="width: 100%; height: auto;">
+          </div>
+
+        </div>
+
+        <!-- Controles de navegación -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" id="btnAnterior" onclick="cambiarPaso(-1)">Anterior</button>
+          <button type="button" class="btn btn-primary" id="btnSiguiente" onclick="cambiarPaso(1)">Siguiente</button>
+          </div>
+
+
+      </div>
+    </div>
+  </div>
 
 
   <div class="modal fade" id="abrir_modal_explorador" tabindex="-1" role="dialog" aria-labelledby="modalLabel">
