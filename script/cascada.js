@@ -212,13 +212,26 @@ $(function(){
 
     $('#vista_carpetas').hide();
     $('#botonesExplorador').show();
+    $('#btnVolver').show();
     $('#ruta_directorio').text(`DIRECTORIO PRINCIPAL > ${nombre}`);
 
     cargarBases(id);
   });
+
+  $('#btnVolver').on('click', function(){
+  // oculto botones y Volver
+  $('#botonesExplorador').hide();
+  $('#btnVolver').hide();
+
+  // muestro de nuevo la vista inicial
+  $('#vista_carpetas').show();
+  $('#ruta_directorio').text('DIRECTORIO PRINCIPAL');
+});
+
 
   // Delegación para abrir modal desde los botones
   $('#botonesExplorador').on('click', 'button.base-btn', function(){
     abrir_modal($(this).data('id'), $(this).data('nombre'));
   });
 });
+

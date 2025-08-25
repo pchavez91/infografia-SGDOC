@@ -68,7 +68,7 @@
 
       
       #botonesExplorador {
-        display: none;
+        display: flex;
         flex-direction: column;
         gap: 40px; /* separación entre niveles */
       }
@@ -153,8 +153,14 @@
     </div>
     <br>
 
+    <button id="btnVolver"
+        style="display:none; margin: 12px 0; padding: 8px 16px; background: linear-gradient(90deg, #0055aa, #0077cc);
+          color: white; border: none; border-radius: 6px; font-weight: bold; font-size: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+          cursor: pointer; transition: background 0.3s ease;">← Volver
+    </button>
+
     <div id="vista_carpetas" class="row"></div>
-    <div id="botonesExplorador" class="mb-3"></div>
+    <div id="botonesExplorador" class="mb-3" style="display:none;"></div>
     
     <script src="script/cascada.js"></script>
     <script src="script/infografia.js"></script>
