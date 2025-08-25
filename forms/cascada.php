@@ -109,7 +109,7 @@
         transition: transform 0.2s ease;
       }
       .boton-caja:hover {
-        transform: scale(1.05);
+        transform: scale(1.3);
       }
 
       /* Colores fijos por rol */
@@ -117,21 +117,6 @@
       .clr-subgerencia { background-color: #00BCD4; } 
       .clr-depto       { background-color: #FFC107; } 
       .clr-formatos    { background-color: #4CAF50; } 
-
-      
-      /* Línea vertical desde cada botón hacia la línea horizontal */
-      .nivel:not(.nivel-1) .boton-caja::before {
-        content: "";
-        position: absolute;
-        top: -38px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 5px;
-        height: 36px;
-        background-color: #03f74cff;
-        z-index: 0;
-      }
-
    
       .nombre-elemento {
         flex: 1;
@@ -176,7 +161,7 @@
 
   <!-- VENTANA NUEVA AYUDA-->
   <div id="ventana_de_ayuda" class="modal fade">
-    <div class="modal-dialog" style="width: 700px; max-width: 100%;">
+    <div class="modal-dialog" style="width: 800px; max-width: 100%;">
       <div class="modal-content" style="border-radius: 10px;">
       
         <div class="modal-header" style="background-color: #39b3d7; color: white;">
@@ -188,7 +173,7 @@
 
           <!-- Paso 1 -->
           <div id="paso1">
-            <p><b>Paso 1: Identifica la caja que necesitas</b></p>
+            <p><b>Paso 1: Identifica la área que necesitas</b></p>
             <p>Cada caja de color representa una carpeta o área de trabajo dentro de la organización:</p>
             <ul>
               <li>🔴 Alta Dirección (nivel superior)</li>
@@ -202,22 +187,24 @@
 
           <!-- Paso 2 -->
           <div id="paso2" style="display: none;">
-            <p><b>Paso 2: Generación del código</b></p>
+            <p><b>Paso 2: Se abre una ventana emergente</b></p>
+            <p>Al hacer clic en una caja, se abre una ventana emergente que muestra el contenido de esa carpeta:</p>
             <ul>
-              <li>El sistema asigna un código automáticamente.</li>
-              <li>Verifica que sea correcto antes de guardar.</li>
+              <li>Verás una estructura tipo árbol o cascada.</li>
+              <li>Las carpetas se organizan jerárquicamente, de arriba hacia abajo.</li>
+              <li>Cada carpeta puede contener subcarpetas o archivos.</li>
             </ul>
             <img src="IMAGENES/explorador_archivos_2.png" style="width: 100%; height: auto;">
           </div>
 
           <!-- Paso 3 -->
           <div id="paso3" style="display: none;">
-            <p><b>Paso 3: Guardar y finalizar</b></p>
+            <p><b>Paso 3: Navega por la jerarquía</b></p>
             <ul>
-              <li>Adjunta el documento y presiona "Guardar".</li>
-              <li>Revisa en la lista que tu archivo esté publicado.</li>
+              <li>Haz clic en una carpeta para expandir su contenido.</li>
+              <li>Puedes ver manuales, procedimientos, formatos oficiales, etc.</li>
             </ul>
-            <img src="IMAGENES/explorador_archivos_3" style="width: 100%; height: auto;">
+            <img src="IMAGENES/explorador_archivos_3.png" style="width: 100%; height: auto;">
           </div>
 
         </div>
@@ -227,7 +214,6 @@
           <button type="button" class="btn btn-default" id="btnAnterior" onclick="cambiarPaso(-1)">Anterior</button>
           <button type="button" class="btn btn-primary" id="btnSiguiente" onclick="cambiarPaso(1)">Siguiente</button>
           </div>
-
 
       </div>
     </div>

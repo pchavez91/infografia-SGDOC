@@ -1,46 +1,46 @@
+function abre_modal_ayuda() {
+  $("#ventana_de_ayuda").modal('show');
 
-function abre_modal_ayuda(){
-    $("#ventana_de_ayuda").modal('show');
+  pasoActual = 1;
+  document.getElementById("paso1").style.display = "block";
+  document.getElementById("paso2").style.display = "none";
+  document.getElementById("paso3").style.display = "none";
+
+  document.getElementById("btnSiguiente").style.display = "inline-block";
+  document.getElementById("btnAnterior").style.display = "none";
 }
 
-//siguiente y atras en el modal
 let pasoActual = 1;
 const totalPasos = 3;
 
 function cambiarPaso(direccion) {
-    // Oculta el paso actual
-    document.getElementById(`paso${pasoActual}`).style.display = "none";
+  document.getElementById(`paso${pasoActual}`).style.display = "none";
 
-    // Cambia el paso
-    pasoActual += direccion;
+  // Cambia el paso
+  pasoActual += direccion;
 
-    // Muestra el nuevo paso
-    document.getElementById(`paso${pasoActual}`).style.display = "block";
+  // Asegura que esté dentro del rango válido
+  if (pasoActual < 1) pasoActual = 1;
+  if (pasoActual > totalPasos) pasoActual = totalPasos;
 
-    // Actualiza botones
-    const btnAnterior = document.getElementById("btnAnterior");
-    const btnSiguiente = document.getElementById("btnSiguiente");
+  document.getElementById(`paso${pasoActual}`).style.display = "block";
 
-    btnAnterior.disabled = pasoActual === 1;
+  // Actualiza botones
+  const btnAnterior = document.getElementById("btnAnterior");
+  const btnSiguiente = document.getElementById("btnSiguiente");
 
-    if (pasoActual === totalPasos) {
-        btnSiguiente.style.display = "none";
+  // Mostrar u ocultar botón "Atrás"
+  if (pasoActual === 1) {
+    btnAnterior.style.display = "none";
+  } else {
+    btnAnterior.style.display = "inline-block";
+  }
 
-        // ⏱️ Cerrar el modal automáticamente después de 10 segundos
-        setTimeout(() => {
-        $('#ventana_de_ayuda').modal('hide');
-        pasoActual = 1; // Reinicia si vuelven a abrir el modal
-
-        // mostrar solo el primer paso al reabrir
-        document.getElementById("paso2").style.display = "none";
-        document.getElementById("paso3").style.display = "none";
-        document.getElementById("paso1").style.display = "block";
-        btnSiguiente.style.display = "inline-block";
-        btnAnterior.disabled = true;
-
-        }, 10000); // 10000 milisegundos = 5 segundos
-    } else {
-        btnSiguiente.style.display = "inline-block";
-        btnSiguiente.textContent = "Siguiente";
-    }
+  // Mostrar u ocultar botón "Siguiente"
+  if (pasoActual === totalPasos) {
+    btnSiguiente.style.display = "none";
+  } else {
+    btnSiguiente.style.display = "inline-block";
+    btnSiguiente.textContent = "Siguiente";
+  }
 }
