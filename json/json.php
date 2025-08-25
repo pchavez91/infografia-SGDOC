@@ -3822,18 +3822,32 @@ if($accion=='consulta_directorio_atras_general'){
 
 if ($accion == 'consulta_bases') {
     global $link;
-    $sql = "SELECT id, nombre_elemento 
-            FROM [BDflexline].[TI].[base_repositorio] 
-            WHERE id_padre = 3845 AND tipo_elemento = 1
-            ORDER BY nombre_elemento";
+
+    if (isset($_POST['id_padre'])) {
+        $id_padre = intval($_POST['id_padre']);
+    }
+    elseif (isset($_GET['id_padre'])) {
+        $id_padre = intval($_GET['id_padre']);
+    }
+    else {
+        $id_padre = 0;
+    }
+
+    $sql = "
+      SELECT id, nombre_elemento
+      FROM [BDflexline].[TI].[base_repositorio]
+      WHERE id_padre = {$id_padre}
+        AND tipo_elemento = 1
+      ORDER BY nombre_elemento
+    ";
 
     $res = mssql_query($sql, $link);
     $bases = [];
 
     while ($row = mssql_fetch_array($res)) {
         $bases[] = [
-            "id" => $row['id'],
-            "nombre" => $row['nombre_elemento']
+            "id"     => $row['id'],
+            "nombre" => utf8_encode($row['nombre_elemento'])
         ];
     }
 
@@ -3841,6 +3855,7 @@ if ($accion == 'consulta_bases') {
     echo json_encode(["bases" => $bases]);
     exit;
 }
+
 
 
 
@@ -3918,6 +3933,36 @@ if ($accion == 'consulta_directorio_completo') {
     echo json_encode(["data" => $arreglo]);
     exit;
 }
+
+
+if ($accion == 'consulta_directorio_por_padre') {
+    global $link;
+
+    $id_padre = intval($_POST['id_padre']);
+
+    $sql = "
+      SELECT id, nombre_elemento
+      FROM [BDflexline].[TI].[base_repositorio]
+      WHERE id_padre = {$id_padre}
+        AND tipo_elemento = 1
+      ORDER BY nombre_elemento
+    ";
+
+    $res = mssql_query($sql, $link);
+    $data = [];
+
+    while ($row = mssql_fetch_array($res)) {
+        $data[] = [
+            'id'              => $row['id'],
+            'nombre_elemento' => utf8_encode($row['nombre_elemento'])
+        ];
+    }
+
+    header('Content-Type: application/json');
+    echo json_encode(['data' => $data]);
+    exit;
+}
+
 
 
 

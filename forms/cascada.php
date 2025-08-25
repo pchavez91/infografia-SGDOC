@@ -68,7 +68,7 @@
 
       
       #botonesExplorador {
-        display: flex;
+        display: none;
         flex-direction: column;
         gap: 40px; /* separación entre niveles */
       }
@@ -153,6 +153,7 @@
     </div>
     <br>
 
+    <div id="vista_carpetas" class="row"></div>
     <div id="botonesExplorador" class="mb-3"></div>
     
     <script src="script/cascada.js"></script>
