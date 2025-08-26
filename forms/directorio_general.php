@@ -5,20 +5,20 @@
 </head>
 	
 <body class="sticky-header left-side-collapsed">
-   <input type="hidden" id="id_directorio" value="0">
-   <label id="ruta_directorio"></label>
-    <div class="form_empresa">
-    	<div class="panel panel-default">
-    		<div class="panel-body">
-    			<div class="form-group col-xs-6 col-lg-6">
-    				<button type="button" class="btn btn-light" data-dismiss="modal" onclick="salir_directorio()">Atrás</button>
-    			</div>
-          <div class="form-group col-xs-6 col-lg-6">
-            <button type="button" class="btn btn-warning" data-dismiss="modal" onclick="abre_ventana_buscar_archivo()">Busqueda rápida</button>
-          </div>
-			</div>
-	</div>
-	</div>
+  <input type="hidden" id="id_directorio" value="0">
+  <label id="ruta_directorio"></label>
+  <div class="form_empresa">
+    <div class="panel panel-default">
+      <div class="panel-body">
+        <div class="form-group col-xs-6 col-lg-6">
+          <button type="button" class="btn btn-light" data-dismiss="modal" onclick="salir_directorio()">Atrás</button>
+        </div>
+        <div class="form-group col-xs-6 col-lg-6">
+          <button id="btnBusquedaRapida" class="btn btn-primary">Buscar archivo</button>         
+        </div>
+      </div>
+    </div>
+  </div>  
 
 	<div class="panel panel-default">
         <div class="panel-body">
@@ -51,8 +51,15 @@
 
         <form id="form_editar_descripcion" role="form">
           <br>
-          <!-- Aquí inyectaremos el buscador y los dos filtros -->
-          <!-- Tabla -->
+          <div class="col-lg-12 col-xs-12 d-flex align-items-center">
+            <label class="col-auto col-form-label mr-2"><strong>Filtros:</strong></label>
+            <div class="d-flex flex-grow-1">
+              <select id="selectRepositorio"   class="form-control mr-2"></select>
+              <select id="selectArea"         class="form-control mr-2"></select>
+              <select id="selectDepartamento"class="form-control"></select>
+            </div>
+          </div>
+
           <div class="row" style="padding: 0 15px;">
             <div class="col-xs-12 col-lg-12">
               <table

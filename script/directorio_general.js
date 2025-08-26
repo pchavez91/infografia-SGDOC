@@ -1,221 +1,140 @@
-$(document).on('shown.bs.modal', function (e) {
-      $.fn.dataTable.tables( {visible: true, api: true} ).columns.adjust();
+
+
+  $(document).ready(function() {
+  // 1) Función genérica para poblar selects
+    function loadOptions(id_padre, selector, placeholder) {
+    console.log('Cargando opciones para id_padre=', id_padre);
+
+    $.getJSON('json/json.php', {
+        accion:   'listar_elementos_filtro',
+        id_padre: id_padre
+    })
+    .done(function(resp) {
+        console.log('Respuesta filtros:', resp);
+
+        let html = `<option value="">${placeholder}</option>`;
+        resp.data.forEach(item => {
+        html += `<option value="${item.id}">${item.nombre_elemento}</option>`;
+        });
+        $(selector).html(html);
+    })
+    .fail(function(err) {
+        console.error('Error al cargar filtros:', err);
     });
-    
-    $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-        $($.fn.dataTable.tables(true)).DataTable()
-           .columns.adjust()
-           .responsive.recalc();
-    });
-        
+    }
 
 
-function abre_ventana_buscar_archivo() {
-    var id_directorio = $("#id_directorio").val();
 
-    if (id_directorio == '0') {
-        alert('Error: Al menos debe ingresar a algunos de los directorios');
+  // 2) Abrir modal y precargar repositorios
+  function abre_ventana_buscar_archivo() {
+    const id_directorio = $('#id_directorio').val();
+    if (id_directorio === '0') {
+      return alert('Error: Al menos debe ingresar a algunos de los directorios');
+    }
+
+    // 2.1 Vacía los selects dependientes
+    $('#selectArea, #selectDepartamento')
+      .html('<option value="">Seleccione primero</option>');
+
+    // 2.2 Carga repositorios
+    loadOptions(1, $('#selectRepositorio'), 'Todos los repositorios');
+
+    // 2.3 Inicializa o refresca la DataTable
+    carga_lista_archivos();
+
+    // 2.4 Finalmente abre el modal
+    $('#ventana_busqueda_archivo').modal('show');
+  }
+
+  // 3) Bind del botón
+  $('#btnBusquedaRapida').on('click', abre_ventana_buscar_archivo);
+
+  // 4) Bind de selects
+  $('#selectRepositorio').on('change', function() {
+    const repoId = $(this).val();
+    $('#selectDepartamento')
+      .html('<option value="">Seleccione área primero</option>');
+    if (repoId) {
+      loadOptions(repoId, $('#selectArea'), 'Todas las áreas');
     } else {
-        // Cargar el select de tipos de documento
-        cargar_select_tipo_documento();
-
-        // Cargar la tabla
-        carga_lista_archivos();
-
-        // Mostrar el modal
-        $("#ventana_busqueda_archivo").modal('show');
+      $('#selectArea').html('<option value="">Seleccione repositorio primero</option>');
     }
-}
+    reloadTable();
+  });
 
-
-
-function visualizar_archivo(id_directorio){
-
-         $.ajax({
-                  url:'json/json.php?accion=abrir_nombre_archivo',
-                  data:{id_directorio:id_directorio},
-                  type:'post',
-                  dataType: "json", 
-                  success: function (json_jax)
-                    {
-
-                       // Abrir nuevo tab
-                        var win = window.open('archivos_subidos/'+json_jax.descripcion, '_blank');
-                        // Cambiar el foco al nuevo tab (punto opcional)
-                        win.focus();
-
-              
-
-                    }
-            });
-
-}
-
-
-function carga_lista_archivos(){
-var tipoDoc = $('#filtro_tipo_documento').val();
-var departamento = $('#filtro_departamento').val(); // otro filtro
-var consulta='json/json.php?accion=listar_archivos_busqueda';
-
-// Agregar filtros como parámetros GET si tienen valor
-    var params = [];
-    if (tipoDoc !== '') params.push('tipo_documento=' + encodeURIComponent(tipoDoc));
-    if (departamento !== '') params.push('departamento=' + encodeURIComponent(departamento));
-
-    if (params.length > 0) {
-        consulta += '&' + params.join('&');
+  $('#selectArea').on('change', function() {
+    const areaId = $(this).val();
+    if (areaId) {
+      loadOptions(areaId, $('#selectDepartamento'), 'Todos los departamentos');
+    } else {
+      $('#selectDepartamento').html('<option value="">Seleccione área primero</option>');
     }
-    
-$("#tabla_lista_archivos_encontrados").dataTable().fnDestroy();
-$('#tabla_lista_archivos_encontrados').DataTable({
-         responsive: true,
-         dom: "<'row'<'col-sm-12'<'custom-filters d-flex align-items-center'>>>" +
-                "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>",
-         scrollX:true,
-         buttons: [],
-             aLengthMenu: [
-                          [10,25, 50, 100, 200, -1],
-                          [10,25, 50, 100, 200, "Todos"]
-                      ],
-        iDisplayLength: 10,     
-    
-            "ajax":''+consulta+'',
-            "columns": [
-            { "data": "nombre_elemento" },
-            { "data": "codigo_archivo" },
-            { 
-                data: 'id',
-                render: function (data, type, row) {
-                return '<div style="cursor:pointer;" onClick="visualizar_archivo(\''+row.id+'\')">' +
-                        '<img src="img/'+row.extencion_elemento+'.png" style="max-width: 30px;" title="Ver archivo">' +
-                        '</div>';
-                }
-            },
-            { "data": "ruta" }
-            ],
+    reloadTable();
+  });
 
-            "language": {
-                "lengthMenu": "Mostrar _MENU_ Registros por pagina",
-                "zeroRecords": "No se ha encontrado resultados",
-                "info": "Mostrando pagina _PAGE_ de _PAGES_",
-                "infoEmpty": "Sin resultados",
-                "infoFiltered": "(Filtrado de _MAX_ registros totales)",
-                "search": "Buscar",
-                 "oPaginate": {
-                    "sFirst":    "Primero",
-                    "sLast":     "Último",
-                    "sNext":     "Siguiente",
-                    "sPrevious": "Anterior"
-                        },
-            },
-            
-           "order": [], // sin orden de columna
+  $('#selectDepartamento').on('change', reloadTable);
 
-            "columnDefs": [
-            {
-                //"targets": [ 2],
-                //"visible": false,
-                //"searchable": false
-            }
-        ],
-           });
-}
+  // 5) Recargar DataTable según filtros
+  function reloadTable() {
+  let url = 'json/json.php?accion=listar_archivos_busqueda';
+  const repo = $('#selectRepositorio').val(),
+        area = $('#selectArea').val(),
+        dept = $('#selectDepartamento').val();
+  const params = [];
+  if (repo) params.push(`repositorio=${repo}`);
+  if (area) params.push(`area=${area}`);
+  if (dept) params.push(`departamento=${dept}`);
+  if (params.length) url += '&' + params.join('&');
 
-$('#tabla_lista_archivos_encontrados').on('init.dt', function () {
-    const filtrosHTML = `
-        <div class="col-lg-12 col-xs-12 d-flex align-items-center">
-            <label for="custom_search_input" class="col-auto col-form-label mr-2"><strong>Buscar:</strong></label>
-            <div class="flex-grow-1">
-                <input type="search" id="custom_search_input" class="form-control" placeholder="Buscar..." style="width:100%;">
-            </div>
-        </div>
+  $('#tabla_lista_archivos_encontrados')
+    .DataTable()
+    .ajax.url(url)
+    .load();
+    }
 
-        <div class="col-lg-6 col-xs-6 d-flex align-items-center">
-            <label for="filtro_departamento" class="col-auto col-form-label mr-2">
-            <strong>Departamento:</strong></label>
-            <div class="col-auto">
-                <select id="filtro_departamento" class="form-control">
-                    <option value="">Todos</option>
-                </select>
-            </div>
-        </div>
 
-        <div class="col-lg-6 col-xs-6 d-flex align-items-center">
-            <label for="filtro_tipo_documento" class="col-auto col-form-label ml-4 mr-2"><strong>Tipo de documento:</strong></label>
-            <div class="col-auto">
-                <select id="filtro_tipo_documento" class="form-control">
-                    <option value="">Todos</option>
-                </select>
-            </div>
-        </div>
-    </div>
-`;
+  // 6) Inicialización de DataTable
+  function carga_lista_archivos() {
+    const $tabla = $('#tabla_lista_archivos_encontrados');
 
-    $('.custom-filters').html(filtrosHTML);
+    // Si ya está inicializada, destrúyela
+    if ( $.fn.DataTable.isDataTable($tabla) ) {
+      $tabla.DataTable().destroy();
+    }
 
-    // Ahora cargamos los departamentos
-    cargar_select_departamento();
-    // Ahora cargamos los tipos de documento
-    cargar_select_tipo_documento();
-
-    // Vinculamos eventos
-    $('#custom_search_input').on('keyup', function () {
-        $('#tabla_lista_archivos_encontrados').DataTable().search(this.value).draw();
+    $tabla.DataTable({
+      ajax: 'json/json.php?accion=listar_archivos_busqueda',
+      columns: [
+        { data: "nombre_elemento" },
+        { data: "codigo_archivo" },
+        {
+          data: 'id',
+          render: (id, _, row) => `
+            <div style="cursor:pointer" onclick="visualizar_archivo('${id}')">
+              <img src="img/${row.extencion_elemento}.png" 
+                   style="max-width:30px" title="Ver archivo">
+            </div>`
+        },
+        { data: "ruta" }
+      ],
+      responsive: true,
+      scrollX: true,
+      // tu configuración de lenguaje, paginación, etc.
     });
+  }
 
-    $('#filtro_departamento').on('change', function () {
-        $('#tabla_lista_archivos_encontrados').DataTable().column(1).search(this.value).draw();
+  // 7) Función global para abrir el archivo
+  window.visualizar_archivo = function(id) {
+    $.post('json/json.php?accion=abrir_nombre_archivo',
+      { id_directorio: id },
+      null,
+      'json'
+    ).done(json => {
+      const win = window.open('archivos_subidos/' + json.descripcion, '_blank');
+      win.focus();
     });
-
-    $('#filtro_tipo_documento').on('change', function () {
-        carga_lista_archivos(); // Recarga la tabla con filtro
-    });
+  };
 });
-
-
-function cargar_select_tipo_documento() {
-    $.ajax({
-        url: 'json/json.php?accion=obtener_tipos_documento',
-        method: 'GET',
-        dataType: 'json',
-        success: function (data) {
-            var select = $('#filtro_tipo_documento');
-            select.empty();
-            select.append('<option value="">Todos</option>');
-
-            data.forEach(function (item) {
-                // Usar item.id o item.nombre según tu JSON, en este caso ambos son iguales
-                select.append('<option value="' + item.id + '">' + item.nombre + '</option>');
-            });
-        },
-        error: function () {
-            alert('Error al cargar los tipos de documento');
-        }
-    });
-}
-
-function cargar_select_departamento() {
-    $.ajax({
-        url: 'json/json.php?accion=obtener_departamentos',
-        method: 'GET',
-        dataType: 'json',
-        success: function (data) {
-            var select = $('#filtro_departamento');
-            select.empty();
-            select.append('<option value="">Todos</option>');
-            data.forEach(function (item) {
-                select.append('<option value="' + item.id + '">' + item.nombre + '</option>');
-            });
-        },
-        error: function () {
-            alert('Error al cargar los departamentos');
-        }
-    });
-}
-
-
-
-
 
 
 

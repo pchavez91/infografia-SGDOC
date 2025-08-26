@@ -2745,36 +2745,62 @@ if($accion=='edita_directorio'){
 }
 
 
+if($accion=='listar_elementos_filtro') {
+
+
+    $parent = intval($_GET['id_padre']);
+    $sql = "
+      SELECT [id], [nombre_elemento]
+      FROM [BDflexline].[TI].[base_repositorio]
+      WHERE [id_padre] = '$parent'
+        AND [tipo_elemento] = '1'
+        AND [vigencia] = 'SI'
+    ";
+    $res = mssql_query($sql, $link);
+    $arr = [];
+    while($row = mssql_fetch_array($res)) {
+      $arr[] = [
+        'id' => $row['id'],
+        'nombre_elemento' => utf8_decode($row['nombre_elemento'])
+      ];
+    }
+    echo json_encode(['data' => $arr]);
+    exit;
+}
+
+
 
 
 
 if($accion=='listar_archivos_busqueda'){
 
-	/*$tipo_documento = isset($_GET['tipo_documento']) ? trim($_GET['tipo_documento']) : '';
-    $departamento = isset($_GET['departamento']) ? trim($_GET['departamento']) : '';*/
 
 	$arreglo='';
 	$codigo_cargo=$_SESSION['cod_cargo'];
 	//$codigo_cargo='92';
 
+	$parentFilter = '';
+    if (!empty($_GET['departamento'])) {
+        $p = intval($_GET['departamento']);
+        $parentFilter = " AND [id_padre] = $p";
+    }
+    elseif (!empty($_GET['area'])) {
+        $p = intval($_GET['area']);
+        $parentFilter = " AND [id_padre] = $p";
+    }
+    elseif (!empty($_GET['repositorio'])) {
+        $p = intval($_GET['repositorio']);
+        $parentFilter = " AND [id_padre] = $p";
+    }
 
     $sql ="SELECT [id], [nombre_elemento], [id_padre], [extencion_elemento], [tipo_elemento],
                    [ruta], [fecha_publicacion], [nivel_acceso], [descripcion], [codigo_archivo]
             FROM [BDflexline].[TI].[base_repositorio]
             WHERE [tipo_elemento] = '0'
               AND [vigencia] = 'SI'
-              AND [estado_gestion] = 'OK'";
+              AND [estado_gestion] = 'OK'
+			  $parentFilter";
 
-			/*if ($tipo_documento != '') {
-        	// Escapa o valida $tipo_documento para evitar inyección
-        		$tipo_documento_esc = addslashes($tipo_documento);
-        		$sql .= " AND r.tipo_documento = '$tipo_documento_esc'";
-    		}
-
-    		/*if ($departamento != '') {
-        		$departamento_esc = addslashes($departamento);
-        		$sql .= " AND d.departamento = '$departamento_esc'";
-    		}*/
 
 			$RESP = mssql_query($sql, $link);
     		if(!$RESP){
@@ -2796,8 +2822,6 @@ if($accion=='listar_archivos_busqueda'){
 				$fecha_publicacion=$ROW['fecha_publicacion'];
 				$descripcion=$ROW['descripcion'];
 				$codigo_archivo=$ROW['codigo_archivo'];
-				// $tipo_documento = $ROW['tipo_documento']; // si quieres usar
-        		// $departamento = $ROW['departamento']; // si quieres usar
 
 				if($nivel_acceso=='4'){
 
@@ -2840,57 +2864,8 @@ if($accion=='listar_archivos_busqueda'){
             echo '{"data":['.$arreglo.']}';
 }
 
-if ($accion == 'obtener_tipos_documento') {
-    $tipos = array();
-
-    $sql = "SELECT tipo_documento
-            FROM [BDflexline].[TI].[base_repositorio_tipo_documento]
-            WHERE vigente = 'S'";
-
-    $resp = mssql_query($sql, $link);
-
-    while ($row = mssql_fetch_array($resp)) {
-        $tipo = trim(utf8_encode($row['tipo_documento']));  // <-- importante el trim
-
-        if ($tipo !== '') {  // evita valores vacíos o nulos
-            $tipos[] = array(
-                "id" => $tipo,
-                "nombre" => $tipo
-            );
-        }
-    }
-
-    header('Content-Type: application/json');
-    echo json_encode($tipos);
-    exit;
-}
-
-if ($accion == 'obtener_departamentos') {
-    $departamentos = array();
-
-    $sql = "SELECT DISTINCT departamento
-        FROM [BDflexline].[TI].[base_repositorio_departamento]
-        WHERE vigente = 'S'
-        ORDER BY departamento";
 
 
-    $resp = mssql_query($sql, $link);
-
-    while ($row = mssql_fetch_array($resp)) {
-        $nombre = trim(utf8_encode($row['departamento']));
-
-        if ($nombre !== '') {
-            $departamentos[] = array(
-                "id" => $nombre,
-                "nombre" => $nombre
-            );
-        }
-    }
-
-    header('Content-Type: application/json');
-    echo json_encode($departamentos);
-    exit;
-}
 
 
 
