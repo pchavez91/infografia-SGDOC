@@ -1,140 +1,182 @@
 
 
-  $(document).ready(function() {
-  // 1) Función genérica para poblar selects
-    function loadOptions(id_padre, selector, placeholder) {
-    console.log('Cargando opciones para id_padre=', id_padre);
+$(document).ready(function() {
+// CACHES PARA NO REPETIR PETICIONES
+const cacheDirs  = {}; 
+const cacheFiles = {}; 
 
-    $.getJSON('json/json.php', {
-        accion:   'listar_elementos_filtro',
-        id_padre: id_padre
-    })
-    .done(function(resp) {
-        console.log('Respuesta filtros:', resp);
-
-        let html = `<option value="">${placeholder}</option>`;
-        resp.data.forEach(item => {
-        html += `<option value="${item.id}">${item.nombre_elemento}</option>`;
-        });
-        $(selector).html(html);
-    })
-    .fail(function(err) {
-        console.error('Error al cargar filtros:', err);
-    });
-    }
-
-
-
-  // 2) Abrir modal y precargar repositorios
-  function abre_ventana_buscar_archivo() {
-    const id_directorio = $('#id_directorio').val();
-    if (id_directorio === '0') {
-      return alert('Error: Al menos debe ingresar a algunos de los directorios');
-    }
-
-    // 2.1 Vacía los selects dependientes
-    $('#selectArea, #selectDepartamento')
-      .html('<option value="">Seleccione primero</option>');
-
-    // 2.2 Carga repositorios
-    loadOptions(1, $('#selectRepositorio'), 'Todos los repositorios');
-
-    // 2.3 Inicializa o refresca la DataTable
-    carga_lista_archivos();
-
-    // 2.4 Finalmente abre el modal
-    $('#ventana_busqueda_archivo').modal('show');
+function getSubdirs(id) {
+  if (cacheDirs[id]) {
+    return Promise.resolve(cacheDirs[id]);
   }
-
-  // 3) Bind del botón
-  $('#btnBusquedaRapida').on('click', abre_ventana_buscar_archivo);
-
-  // 4) Bind de selects
-  $('#selectRepositorio').on('change', function() {
-    const repoId = $(this).val();
-    $('#selectDepartamento')
-      .html('<option value="">Seleccione área primero</option>');
-    if (repoId) {
-      loadOptions(repoId, $('#selectArea'), 'Todas las áreas');
-    } else {
-      $('#selectArea').html('<option value="">Seleccione repositorio primero</option>');
-    }
-    reloadTable();
+  return $.getJSON('json/json.php', {
+    accion:   'listar_elementos_filtro',
+    id_padre: id
+  })
+  .then(resp => {
+    cacheDirs[id] = resp.data;
+    return resp.data;
   });
+}
 
-  $('#selectArea').on('change', function() {
-    const areaId = $(this).val();
-    if (areaId) {
-      loadOptions(areaId, $('#selectDepartamento'), 'Todos los departamentos');
-    } else {
-      $('#selectDepartamento').html('<option value="">Seleccione área primero</option>');
-    }
-    reloadTable();
+function getFiles(id) {
+  if (cacheFiles[id]) {
+    return Promise.resolve(cacheFiles[id]);
+  }
+  return $.getJSON('json/json.php', {
+    accion:       'listar_archivos_busqueda',
+    departamento: id
+  })
+  .then(resp => {
+    cacheFiles[id] = resp.data;
+    return resp.data;
   });
+}
 
-  $('#selectDepartamento').on('change', reloadTable);
+// BFS PARA RECORRER TODOS LOS SUBNIVELES EN PARALELO
+function fetchFilesRecursively(rootId) {
+  const files = [];
+  let queue = rootId ? [ rootId ] : [];
 
-  // 5) Recargar DataTable según filtros
-  function reloadTable() {
-  let url = 'json/json.php?accion=listar_archivos_busqueda';
+  return new Promise((resolve, reject) => {
+    function step() {
+      if (!queue.length) {
+        return resolve(files);
+      }
+      const current = queue.slice();
+      queue = [];
+
+      const filesP = current.map(id => getFiles(id));
+      const dirsP  = current.map(id => getSubdirs(id));
+
+      Promise.all([
+        Promise.all(filesP),
+        Promise.all(dirsP)
+      ])
+      .then(([filesArrays, dirsArrays]) => {
+        filesArrays.forEach(arr => files.push(...arr));
+        dirsArrays.forEach(arr => arr.forEach(d => queue.push(d.id)));
+        step();
+      })
+      .catch(reject);
+    }
+    step();
+  });
+}
+
+function loadOptions(id_padre, $sel, placeholder) {
+  $.getJSON('json/json.php', {
+    accion:   'listar_elementos_filtro',
+    id_padre: id_padre
+  })
+  .done(resp => {
+    let html = `<option value="">${placeholder}</option>`;
+    resp.data.forEach(it => {
+      html += `<option value="${it.id}">${it.nombre_elemento}</option>`;
+    });
+    $sel.html(html);
+  })
+  .fail(err => console.error(err));
+}
+
+function carga_lista_archivos() {
+  const $tabla = $('#tabla_lista_archivos_encontrados');
+  if ($.fn.DataTable.isDataTable($tabla)) {
+    $tabla.DataTable().destroy();
+  }
+  $tabla.DataTable({
+    ajax: 'json/json.php?accion=listar_archivos_busqueda',
+    columns: [
+      { data: "nombre_elemento" },
+      { data: "codigo_archivo" },
+      {
+        data: 'id',
+        render: (id, _, row) => `
+          <div style="cursor:pointer" onclick="visualizar_archivo('${id}')">
+            <img src="img/${row.extencion_elemento}.png"
+                  style="max-width:30px" title="Ver archivo">
+          </div>`
+      },
+      { data: "ruta" }
+    ],
+    responsive: true,
+    scrollX: true
+  });
+}
+
+function reloadTable() {
   const repo = $('#selectRepositorio').val(),
         area = $('#selectArea').val(),
         dept = $('#selectDepartamento').val();
-  const params = [];
-  if (repo) params.push(`repositorio=${repo}`);
-  if (area) params.push(`area=${area}`);
-  if (dept) params.push(`departamento=${dept}`);
-  if (params.length) url += '&' + params.join('&');
 
-  $('#tabla_lista_archivos_encontrados')
-    .DataTable()
-    .ajax.url(url)
-    .load();
-    }
+  let rootId = null;
+  if (dept)  rootId = dept;
+  else if (area) rootId = area;
+  else if (repo) rootId = repo;
 
+  const table = $('#tabla_lista_archivos_encontrados').DataTable();
 
-  // 6) Inicialización de DataTable
-  function carga_lista_archivos() {
-    const $tabla = $('#tabla_lista_archivos_encontrados');
-
-    // Si ya está inicializada, destrúyela
-    if ( $.fn.DataTable.isDataTable($tabla) ) {
-      $tabla.DataTable().destroy();
-    }
-
-    $tabla.DataTable({
-      ajax: 'json/json.php?accion=listar_archivos_busqueda',
-      columns: [
-        { data: "nombre_elemento" },
-        { data: "codigo_archivo" },
-        {
-          data: 'id',
-          render: (id, _, row) => `
-            <div style="cursor:pointer" onclick="visualizar_archivo('${id}')">
-              <img src="img/${row.extencion_elemento}.png" 
-                   style="max-width:30px" title="Ver archivo">
-            </div>`
-        },
-        { data: "ruta" }
-      ],
-      responsive: true,
-      scrollX: true,
-      // tu configuración de lenguaje, paginación, etc.
-    });
+  if (!rootId) {
+    table.ajax.url('json/json.php?accion=listar_archivos_busqueda').load();
+    return;
   }
 
-  // 7) Función global para abrir el archivo
-  window.visualizar_archivo = function(id) {
-    $.post('json/json.php?accion=abrir_nombre_archivo',
-      { id_directorio: id },
-      null,
-      'json'
-    ).done(json => {
-      const win = window.open('archivos_subidos/' + json.descripcion, '_blank');
-      win.focus();
-    });
-  };
+  fetchFilesRecursively(rootId)
+    .then(allFiles => {
+      table.clear();
+      table.rows.add(allFiles);
+      table.draw();
+    })
+    .catch(err => console.error(err));
+}
+
+function abre_ventana_buscar_archivo() {
+  const id_directorio = $('#id_directorio').val();
+  if (id_directorio === '0') {
+    return alert('Error: debe ingresar a algún directorio');
+  }
+  $('#selectArea, #selectDepartamento')
+    .html('<option value="">Seleccione primero</option>');
+  loadOptions(1, $('#selectRepositorio'), 'Todos los repositorios');
+  carga_lista_archivos();
+  $('#ventana_busqueda_archivo').modal('show');
+}
+
+$('#btnBusquedaRapida').on('click', abre_ventana_buscar_archivo);
+
+$('#selectRepositorio').on('change', function() {
+  const id = $(this).val();
+  $('#selectDepartamento')
+    .html('<option value="">Seleccione área primero</option>');
+  if (id) loadOptions(id, $('#selectArea'), 'Todas las áreas');
+  else  $('#selectArea').html('<option value="">Seleccione repositorio primero</option>');
+  reloadTable();
 });
+
+$('#selectArea').on('change', function() {
+  const id = $(this).val();
+  if (id) loadOptions(id, $('#selectDepartamento'), 'Todos los departamentos');
+  else  $('#selectDepartamento').html('<option value="">Seleccione área primero</option>');
+  reloadTable();
+});
+
+$('#selectDepartamento').on('change', reloadTable);
+
+window.visualizar_archivo = function(id) {
+  $.post('json/json.php?accion=abrir_nombre_archivo',
+    { id_directorio: id },
+    null, 'json'
+  ).done(json => {
+    const w = window.open('archivos_subidos/' + json.descripcion, '_blank');
+    w.focus();
+  });
+};
+
+// ARRANCA
+carga_lista_archivos();
+});
+
+
 
 
 
@@ -200,10 +242,7 @@ $('#tabla_lista_archivos').DataTable({
                 //"searchable": false
             }
         ],
-           });
-
-
-
+  });
 }
 
 

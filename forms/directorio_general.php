@@ -1,6 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <style>
+    .dataTables_length,
+    .dataTables_filter {
+      display: none !important;
+    }
+  </style>
 <link href="../../css/style.css" rel="stylesheet">
 </head>
 	
@@ -29,36 +35,50 @@
 </body>
 <script src="script/directorio_general.js"></script>
 
-
-
   <!-- busqueda rapida -->
   <div id="ventana_busqueda_archivo" class="modal fade">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
-        
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal">
+                  
+        <div class="modal-header" style="display: flex; align-items: center; justify-content: space-between;">
+          
+          <img src="../../images/photos/logo_comasa_avatar.png" alt="Logo Comasa" style="height: 40px; margin-right: 10px;">
+          
+          <div style="flex-grow: 1; text-align: center;">
+            <h2 class="modal-title" style="margin: 0;">BUSCADOR</h2>
+          </div>
+          
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="margin-left: 10px;">
             <span aria-hidden="true">&times;</span>
           </button>
-          <center>
-            <h2 class="modal-title"><label>BUSCAR ARCHIVOS</label></h2>
-          </center>
-          <img src="../../images/photos/logo_comasa_avatar.png" alt="Logo Comasa" style="height: 50px; margin-right: 10px;
-          <h6 class="modal-title">
-            <label id="directorio_codigos"></label>
-          </h6>
         </div>
 
         <form id="form_editar_descripcion" role="form">
           <br>
-          <div class="col-lg-12 col-xs-12 d-flex align-items-center">
-            <label class="col-auto col-form-label mr-2"><strong>Filtros:</strong></label>
-            <div class="d-flex flex-grow-1">
-              <select id="selectRepositorio"   class="form-control mr-2"></select>
-              <select id="selectArea"         class="form-control mr-2"></select>
-              <select id="selectDepartamento"class="form-control"></select>
+          <div class="modal-body">
+            <div class="form-group mb-3">
+              <h4 class="font-weight-bold mb-2" style="color:#333;">🔎 Buscador de archivos</h4>
+              <input type="text" id="buscador" class="form-control" placeholder="Escribe para encontrar tus archivos..." onkeyup="tablaFiltroGlobal(this.value)">
             </div>
-          </div>
+            <h4 class="font-weight-bold mb-2" style="color:#333;">🧮 Filtros</h4>
+
+            <div class="form-row mb-3">
+              <div class="col-md-4">
+                <select id="selectRepositorio" class="form-control">
+                  <option value="">Todos los repositorios</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <select id="selectArea" class="form-control">
+                  <option value="">Seleccione repositorio primero</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <select id="selectDepartamento" class="form-control">
+                  <option value="">Seleccione área primero</option>
+                </select>
+              </div>
+            </div>
 
           <div class="row" style="padding: 0 15px;">
             <div class="col-xs-12 col-lg-12">
