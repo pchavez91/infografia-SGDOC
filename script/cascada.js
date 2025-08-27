@@ -236,101 +236,84 @@ $(function(){
 });
 
 
-$(document).ready(function() {
-// CACHES PARA NO REPETIR PETICIONES
-const cacheDirs  = {}; 
-const cacheFiles = {}; 
+$(function() {
+  // 1) CACHES PARA NO REPETIR PETICIONES
+  const cacheDirs  = {};
+  const cacheFiles = {};
 
-function getSubdirs(id) {
-  if (cacheDirs[id]) {
-    return Promise.resolve(cacheDirs[id]);
-  }
-  return $.getJSON('json/json.php', {
-    accion:   'listar_elementos_filtro',
-    id_padre: id
-  })
-  .then(resp => {
-    cacheDirs[id] = resp.data;
-    return resp.data;
-  });
-}
-
-function getFiles(id) {
-  if (cacheFiles[id]) {
-    return Promise.resolve(cacheFiles[id]);
-  }
-  return $.getJSON('json/json.php', {
-    accion:       'listar_archivos_busqueda',
-    departamento: id
-  })
-  .then(resp => {
-    cacheFiles[id] = resp.data;
-    return resp.data;
-  });
-}
-
-// BFS PARA RECORRER TODOS LOS SUBNIVELES EN PARALELO
-function fetchFilesRecursively(rootId) {
-  const files = [];
-  let queue = rootId ? [ rootId ] : [];
-
-  return new Promise((resolve, reject) => {
-    function step() {
-      if (!queue.length) {
-        return resolve(files);
-      }
-      const current = queue.slice();
-      queue = [];
-
-      const filesP = current.map(id => getFiles(id));
-      const dirsP  = current.map(id => getSubdirs(id));
-
-      Promise.all([
-        Promise.all(filesP),
-        Promise.all(dirsP)
-      ])
-      .then(([filesArrays, dirsArrays]) => {
-        filesArrays.forEach(arr => files.push(...arr));
-        dirsArrays.forEach(arr => arr.forEach(d => queue.push(d.id)));
-        step();
-      })
-      .catch(reject);
+  // 2) Funciones de petición con cache
+  function getSubdirs(id) {
+    if (cacheDirs[id]) {
+      return Promise.resolve(cacheDirs[id]);
     }
-    step();
-  });
-}
-
-function loadOptions(id_padre, $sel, placeholder) {
-  $.getJSON('json/json.php', {
-    accion:   'listar_elementos_filtro',
-    id_padre: id_padre
-  })
-  .done(resp => {
-    let html = `<option value="">${placeholder}</option>`;
-    resp.data.forEach(it => {
-      html += `<option value="${it.id}">${it.nombre_elemento}</option>`;
+    return $.getJSON('json/json.php', {
+      accion:   'listar_elementos_filtro',
+      id_padre: id
+    })
+    .then(resp => {
+      cacheDirs[id] = resp.data;
+      return resp.data;
     });
-    $sel.html(html);
-  })
-  .fail(err => console.error(err));
-}
-
-function carga_lista_archivos() {
-  const $tabla = $('#tabla_lista_archivos_encontrados');
-  if ($.fn.DataTable.isDataTable($tabla)) {
-    $tabla.DataTable().destroy();
   }
-  $tabla.DataTable({
-    ajax: 'json/json.php?accion=listar_archivos_busqueda',
+
+  function getFiles(id) {
+    if (cacheFiles[id]) {
+      return Promise.resolve(cacheFiles[id]);
+    }
+    return $.getJSON('json/json.php', {
+      accion:       'listar_archivos_busqueda',
+      departamento: id
+    })
+    .then(resp => {
+      cacheFiles[id] = resp.data;
+      return resp.data;
+    });
+  }
+
+  // 3) BFS PARA RECORRER CARPETAS Y RECOLECTAR TODOS LOS ARCHIVOS
+  function fetchFilesRecursively(rootId) {
+    const files = [];
+    let queue = rootId ? [ rootId ] : [];
+
+    return new Promise((resolve, reject) => {
+      (function step() {
+        if (!queue.length) {
+          return resolve(files);
+        }
+        const current = queue.slice();
+        queue = [];
+
+        const filesP = current.map(getFiles);
+        const dirsP  = current.map(getSubdirs);
+
+        Promise.all([
+          Promise.all(filesP),
+          Promise.all(dirsP)
+        ])
+        .then(([filesArrays, dirsArrays]) => {
+          // acumula archivos
+          filesArrays.forEach(arr => files.push(...arr));
+          // encola subdirectorios
+          dirsArrays.flat().forEach(d => queue.push(d.id));
+          step();
+        })
+        .catch(reject);
+      })();
+    });
+  }
+
+  // 4) Inicializa DataTable (vacía)
+  const table = $('#tabla_lista_archivos_encontrados').DataTable({
+    data: [],
     columns: [
       { data: "nombre_elemento" },
       { data: "codigo_archivo" },
       {
-        data: 'id',
+        data: "id",
         render: (id, _, row) => `
           <div style="cursor:pointer" onclick="visualizar_archivo('${id}')">
             <img src="img/${row.extencion_elemento}.png"
-                  style="max-width:30px" title="Ver archivo">
+                 style="max-width:30px" title="Ver archivo">
           </div>`
       },
       { data: "ruta" }
@@ -338,76 +321,109 @@ function carga_lista_archivos() {
     responsive: true,
     scrollX: true
   });
-}
 
-function reloadTable() {
-  const repo = $('#selectRepositorio').val(),
-        area = $('#selectArea').val(),
-        dept = $('#selectDepartamento').val();
-
-  let rootId = null;
-  if (dept)  rootId = dept;
-  else if (area) rootId = area;
-  else if (repo) rootId = repo;
-
-  const table = $('#tabla_lista_archivos_encontrados').DataTable();
-
-  if (!rootId) {
-    table.ajax.url('json/json.php?accion=listar_archivos_busqueda').load();
-    return;
+  // 5) Rellena selects dependientes con cache, habilita/deshabilita niveles
+  function fillSelect($sel, items, placeholder) {
+    let html = `<option value="">${placeholder}</option>`;
+    items.forEach(it => {
+      html += `<option value="${it.id}">${it.nombre_elemento}</option>`;
+    });
+    $sel.html(html);
   }
 
-  fetchFilesRecursively(rootId)
-    .then(allFiles => {
-      table.clear();
-      table.rows.add(allFiles);
-      table.draw();
+  function loadOptions(id_padre, $sel, placeholder) {
+    $sel.prop('disabled', true);
+    if (cacheDirs[id_padre]) {
+      fillSelect($sel, cacheDirs[id_padre], placeholder);
+      $sel.prop('disabled', false);
+      return;
+    }
+    $.getJSON('json/json.php', {
+      accion:   'listar_elementos_filtro',
+      id_padre: id_padre
     })
-    .catch(err => console.error(err));
-}
-
-function abre_ventana_buscar_archivo() {
-  const id_directorio = $('#id_directorio').val();
-  if (id_directorio === '0') {
-    return alert('Error: debe ingresar a algún directorio');
+    .done(resp => {
+      cacheDirs[id_padre] = resp.data;
+      fillSelect($sel, resp.data, placeholder);
+    })
+    .fail(err => console.error('listar_elementos_filtro falló', err))
+    .always(() => $sel.prop('disabled', false));
   }
-  $('#selectArea, #selectDepartamento')
-    .html('<option value="">Seleccione primero</option>');
-  loadOptions(1, $('#selectRepositorio'), 'Todos los repositorios');
-  carga_lista_archivos();
-  $('#ventana_busqueda_archivo').modal('show');
-}
 
-$('#btnBusquedaRapida').on('click', abre_ventana_buscar_archivo);
+  // 6) Abre modal y pone todo a cero
+  $('#btnBusquedaRapida').on('click', function() {
+    if ($('#id_directorio').val() === '0') {
+      return alert('Error: debe ingresar a algún directorio');
+    }
+    $('#selectRepositorio, #selectArea, #selectDepartamento')
+      .val('').prop('disabled', true);
+    $('#btnAplicarFiltros').prop('disabled', true);
+    table.clear().draw();
 
-$('#selectRepositorio').on('change', function() {
-  const id = $(this).val();
-  $('#selectDepartamento')
-    .html('<option value="">Seleccione área primero</option>');
-  if (id) loadOptions(id, $('#selectArea'), 'Todas las áreas');
-  else  $('#selectArea').html('<option value="">Seleccione repositorio primero</option>');
-  reloadTable();
-});
+    // Ajusta este id_padre a 0 o 1 según tu estructura raíz
+    loadOptions(1, $('#selectRepositorio'), 'Todos los repositorios');
+    $('#selectRepositorio').prop('disabled', false);
 
-$('#selectArea').on('change', function() {
-  const id = $(this).val();
-  if (id) loadOptions(id, $('#selectDepartamento'), 'Todos los departamentos');
-  else  $('#selectDepartamento').html('<option value="">Seleccione área primero</option>');
-  reloadTable();
-});
-
-$('#selectDepartamento').on('change', reloadTable);
-
-window.visualizar_archivo = function(id) {
-  $.post('json/json.php?accion=abrir_nombre_archivo',
-    { id_directorio: id },
-    null, 'json'
-  ).done(json => {
-    const w = window.open('archivos_subidos/' + json.descripcion, '_blank');
-    w.focus();
+    $('#ventana_busqueda_archivo').modal('show');
   });
-};
 
-// ARRANCA
-carga_lista_archivos();
+  // 7) Cadena de dependencias de selects
+  $('#selectRepositorio').on('change', function() {
+    const repo = this.value;
+    $('#selectArea, #selectDepartamento').val('').prop('disabled', true);
+    $('#btnAplicarFiltros').prop('disabled', !repo);
+
+    if (repo) {
+      loadOptions(repo, $('#selectArea'), 'Todas las áreas');
+      $('#selectArea').prop('disabled', false);
+    }
+  });
+
+  $('#selectArea').on('change', function() {
+    const area = this.value;
+    $('#selectDepartamento').val('').prop('disabled', true);
+    $('#btnAplicarFiltros').prop('disabled', !area);
+
+    if (area) {
+      loadOptions(area, $('#selectDepartamento'), 'Todos los departamentos');
+      $('#selectDepartamento').prop('disabled', false);
+    }
+  });
+
+  $('#selectDepartamento').on('change', function() {
+    $('#btnAplicarFiltros').prop('disabled', !this.value);
+  });
+
+  // 8) Al pulsar "Aplicar filtros": recorre en paralelo todas las carpetas hijas
+  $('#btnAplicarFiltros').on('click', function() {
+    const repo = $('#selectRepositorio').val();
+    const area = $('#selectArea').val();
+    const dept = $('#selectDepartamento').val();
+
+    // determina carpeta raíz de la búsqueda
+    const rootId = dept || area || repo;
+
+    if (!rootId) {
+      table.clear().draw();
+      return;
+    }
+
+    fetchFilesRecursively(rootId)
+      .then(allFiles => {
+        // opcional: filtrar sólo tipo_elemento=0
+        const archivos = allFiles.filter(f => f.tipo_elemento === '0');
+        table.clear().rows.add(archivos).draw();
+      })
+      .catch(err => console.error('Error fetchFilesRecursively:', err));
+  });
+
+  // 9) Función global para abrir archivos
+  window.visualizar_archivo = function(id) {
+    $.post('json/json.php?accion=abrir_nombre_archivo',
+      { id_directorio: id }, null, 'json'
+    ).done(json => {
+      window.open('archivos_subidos/' + json.descripcion, '_blank').focus();
+    });
+  };
 });
+

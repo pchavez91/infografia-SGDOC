@@ -327,6 +327,9 @@
                   <option value="">Seleccione área primero</option>
                 </select>
               </div>
+              
+              <button id="btnAplicarFiltros" class="btn btn-primary mt-2">Aplicar filtros</button>
+              
             </div>
 
           <div class="row" style="padding: 0 15px;">
