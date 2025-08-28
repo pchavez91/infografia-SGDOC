@@ -236,25 +236,37 @@ $(function(){
 });
 
 
-$(document).ready(function() {
-  const ROOT_PARENT_ID = 1;  // Ajusta al id de tu repositorio raíz
+$(function() {
+  // ------------------------------------------------
+  // 1) Parámetros y cache para directorios
+  // ------------------------------------------------
+  const ROOT_PARENT_ID = 1;    // Ajusta al ID raíz de tus repositorios
   const cacheDirs      = {};
 
-  // 1. Función para cargar directorios con cache
-  function loadDirOptions(idPadre) {
-    if (cacheDirs[idPadre]) {
-      return Promise.resolve(cacheDirs[idPadre]);
+  /**
+   * Obtiene hijos de un directorio con cache
+   * @param {number} parentId
+   * @returns {Promise<Array>}
+   */
+  function loadDirOptions(parentId) {
+    if (cacheDirs[parentId]) {
+      return Promise.resolve(cacheDirs[parentId]);
     }
     return $.getJSON('json/json.php', {
       accion:   'listar_elementos_filtro',
-      id_padre: idPadre
+      id_padre: parentId
     }).then(resp => {
-      cacheDirs[idPadre] = resp.data || [];
-      return cacheDirs[idPadre];
+      cacheDirs[parentId] = resp.data || [];
+      return cacheDirs[parentId];
     });
   }
 
-  // 2. Rellena un <select> con un placeholder
+  /**
+   * Rellena un <select> existente con placeholder + items
+   * @param {jQuery} $sel
+   * @param {Array}   items
+   * @param {string}  placeholder
+   */
   function fillSelect($sel, items, placeholder) {
     let html = `<option value="">${placeholder}</option>`;
     items.forEach(it => {
@@ -263,32 +275,38 @@ $(document).ready(function() {
     $sel.html(html);
   }
 
-  // 3. Referencias a elementos del DOM
-  const $btnOpen   = $('#btnBusquedaRapida');      // Botón que abre el modal
-  const $selRepo   = $('#selectRepositorio').prop('disabled', true);
-  const $selArea   = $('#selectArea').prop('disabled', true);
-  const $selDepto  = $('#selectDepartamento').prop('disabled', true);
-  const $btnApply  = $('#btnAplicarFiltros');
+  // ------------------------------------------------
+  // 2) Referencias a DOM
+  // ------------------------------------------------
+  const $modal       = $('#ventana_busqueda_archivo');
+  const $btnOpen     = $('#btnBusquedaRapida');
+  const $selRepo     = $('#selectRepositorio').prop('disabled', true);
+  const $selArea     = $('#selectArea').prop('disabled', true);
+  const $selDepto    = $('#selectDepartamento').prop('disabled', true);
+  const $btnApply    = $('#btnAplicarFiltros').prop('disabled', true);
+  const $inputSearch = $('#buscador');
 
-  // 4. Inicializa repositorios y habilita el botón
-  loadDirOptions(ROOT_PARENT_ID).then(items => {
-    fillSelect($selRepo, items, 'Todos los repositorios');
+  // ------------------------------------------------
+  // 3) Carga inicial de repositorios y DataTable
+  // ------------------------------------------------
+  // 3.1 Llenar select de repositorios al arrancar
+  loadDirOptions(ROOT_PARENT_ID).then(list => {
+    fillSelect($selRepo, list, 'Seleccione repositorio');
     $selRepo.prop('disabled', false);
-    $btnOpen.prop('disabled', false);
   });
 
-  // 5. Inicializa DataTable
+  // 3.2 Instancia DataTable (carga todos los archivos al init)
   const table = $('#tabla_lista_archivos_encontrados').DataTable({
+    dom:        'lrtip',    // ocultamos el searchbox nativo
     responsive: true,
     scrollX:    true,
-    dom:        'lrtip',  // Quitamos el searchbox nativo
     ajax: {
-      url:     'json/json.php?accion=listar_archivos_busqueda',
-      data:    function(d) {
-        // PHP prioriza departamento > área > repositorio
-        d.repositorio  = $selRepo.val();
-        d.area         = $selArea.val();
-        d.departamento = $selDepto.val();
+      url: 'json/json.php?accion=listar_archivos_busqueda',
+      data(d) {
+        // Si hay departamento, enviamos ese; sino área; sino repositorio
+        if ($selDepto.val())      d.departamento = $selDepto.val();
+        else if ($selArea.val())  d.area         = $selArea.val();
+        else if ($selRepo.val())  d.repositorio  = $selRepo.val();
       },
       dataSrc: 'data'
     },
@@ -296,7 +314,7 @@ $(document).ready(function() {
       { data: 'nombre_elemento' },
       { data: 'codigo_archivo' },
       {
-        data:   'id',
+        data: 'id',
         render: (id, _, row) => `
           <div style="cursor:pointer" onclick="visualizar_archivo('${id}')">
             <img src="img/${row.extencion_elemento}.png"
@@ -307,85 +325,117 @@ $(document).ready(function() {
       { data: 'ruta' }
     ],
     language: {
-      lengthMenu:    "Mostrar _MENU_ registros",
-      zeroRecords:   "No se ha encontrado resultados",
-      info:          "Mostrando página _PAGE_ de _PAGES_",
-      infoEmpty:     "Sin resultados",
-      infoFiltered:  "(filtrado de _MAX_ totales)",
-      search:        "Buscar",
-      oPaginate: {
-        sFirst:    "Primero",
-        sLast:     "Último",
-        sNext:     "Siguiente",
-        sPrevious: "Anterior"
+      lengthMenu:   "Mostrar _MENU_ registros",
+      zeroRecords:  "No se ha encontrado resultados",
+      info:         "Mostrando página _PAGE_ de _PAGES_",
+      infoEmpty:    "Sin resultados",
+      infoFiltered: "(filtrado de _MAX_ totales)",
+      paginate: {
+        first:    "Primero",
+        last:     "Último",
+        next:     "Siguiente",
+        previous: "Anterior"
       }
     },
-    order: []  // Sin orden por defecto
+    order: []  // sin orden por defecto
   });
 
-  // 6. Ajusta columnas al mostrar el modal
-  $('#ventana_busqueda_archivo').on('shown.bs.modal', function() {
+  // ------------------------------------------------
+  // 4) Búsqueda global dinámica (separada)
+  // ------------------------------------------------
+  $inputSearch.on('input', function() {
+    table.search(this.value).draw();
+  });
+
+  // ------------------------------------------------
+  // 5) Funciones globales
+  // ------------------------------------------------
+  window.visualizar_archivo = function(id) {
+    $.post('json/json.php?accion=abrir_nombre_archivo',
+      { id_directorio: id }, null, 'json'
+    ).done(json => {
+      const win = window.open('archivos_subidos/' + json.descripcion, '_blank');
+      if (win) win.focus();
+    });
+  };
+
+  // ------------------------------------------------
+  // 6) Al abrir el modal: reseteo de filtros y tabla
+  // ------------------------------------------------
+  $btnOpen.on('click', function(e) {
+    e.preventDefault();
+    // 6.1 Limpiar buscador y tabla
+    $inputSearch.val('');
+    table.search('').draw();
+
+    // 6.2 Resetear selects y botón
+    $selRepo.prop('disabled', true).val('');
+    fillSelect($selArea, [], 'Seleccione repositorio primero');
+    $selArea.prop('disabled', true);
+    fillSelect($selDepto, [], 'Seleccione área primero');
+    $selDepto.prop('disabled', true);
+    $btnApply.prop('disabled', true);
+
+    // 6.3 Abrir modal y recargar toda la tabla
+    $modal.modal('show');
+    table.ajax.reload();
     table.columns.adjust();
   });
 
-  // 7. Conecta tu input onkeyup="tablaFiltroGlobal(...)"
-  window.tablaFiltroGlobal = function(valor) {
-    table.search(valor).draw();
-  };
-
-  // 8. Click al botón “Búsqueda rápida”
-  $btnOpen.on('click', function(e) {
-    e.preventDefault();
-
-    // Reset de selects y tabla
-    $selRepo.prop('disabled', true).val('');
-    $selArea.prop('disabled', true).val('');
-    $selDepto.prop('disabled', true).val('');
-    table.clear().draw();
-
-    // Recarga repositorios y muestra modal
-    loadDirOptions(ROOT_PARENT_ID).then(items => {
-      fillSelect($selRepo, items, 'Todos los repositorios');
-      $selRepo.prop('disabled', false);
-    });
-    $('#ventana_busqueda_archivo').modal('show');
-  });
-
-  // 9. Al cambiar repositorio → carga áreas
+  // ------------------------------------------------
+  // 7) Filtros jerárquicos
+  // ------------------------------------------------
   $selRepo.on('change', function() {
-    const repo = this.value;
-    $selArea.prop('disabled', true).html('<option value="">Seleccione repositorio primero</option>');
-    $selDepto.prop('disabled', true).html('<option value="">Seleccione área primero</option>');
+    const repoId = $(this).val();
+
+    // Reset de hijos
+    fillSelect($selArea, [], 'Seleccione repositorio primero');
+    $selArea.prop('disabled', true);
+    fillSelect($selDepto, [], 'Seleccione área primero');
+    $selDepto.prop('disabled', true);
+
+    // Habilitar “Aplicar filtros” solo al tener repositorio
+    $btnApply.prop('disabled', !repoId);
+
+    // Recargar tabla con filtro de repositorio
     table.ajax.reload();
 
-    if (repo) {
-      loadDirOptions(repo).then(items => {
-        fillSelect($selArea, items, 'Todas las áreas');
+    // Cargar áreas si hay repositorio seleccionado
+    if (repoId) {
+      loadDirOptions(repoId).then(list => {
+        fillSelect($selArea, list, 'Seleccione área');
         $selArea.prop('disabled', false);
       });
     }
   });
 
-  // 10. Al cambiar área → carga departamentos
   $selArea.on('change', function() {
-    const area = this.value;
-    $selDepto.prop('disabled', true).html('<option value="">Seleccione área primero</option>');
+    const areaId = $(this).val();
+
+    // Reset de departamento
+    fillSelect($selDepto, [], 'Seleccione área primero');
+    $selDepto.prop('disabled', true);
+
+    // Recargar tabla con filtro de área
     table.ajax.reload();
 
-    if (area) {
-      loadDirOptions(area).then(items => {
-        fillSelect($selDepto, items, 'Todos los departamentos');
+    // Cargar departamentos si hay área
+    if (areaId) {
+      loadDirOptions(areaId).then(list => {
+        fillSelect($selDepto, list, 'Seleccione departamento');
         $selDepto.prop('disabled', false);
       });
     }
   });
 
-  // 11. Al cambiar departamento → recarga tabla
   $selDepto.on('change', function() {
+    // Recargar tabla con filtro de departamento
     table.ajax.reload();
   });
 
-  // 12. Prevenir envío de formulario en “Aplicar filtros”
+  // ------------------------------------------------
+  // 8) Botón “Aplicar filtros”
+  // ------------------------------------------------
   $btnApply.on('click', function(e) {
     e.preventDefault();
     table.ajax.reload();
