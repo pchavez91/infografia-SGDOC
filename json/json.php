@@ -2774,23 +2774,35 @@ if($accion=='listar_elementos_filtro') {
 
 if($accion=='listar_archivos_busqueda'){
 
+    $arreglo = '';
+    $codigo_cargo = $_SESSION['cod_cargo'];
+    //$codigo_cargo = '92';
 
-	$arreglo='';
-	$codigo_cargo=$_SESSION['cod_cargo'];
-	//$codigo_cargo='92';
-
-	$parentFilter = '';
+    // Determinar nodo raíz según filtros
+    $p = 0;
     if (!empty($_GET['departamento'])) {
         $p = intval($_GET['departamento']);
-        $parentFilter = " AND [id_padre] = $p";
-    }
-    elseif (!empty($_GET['area'])) {
+    } elseif (!empty($_GET['area'])) {
         $p = intval($_GET['area']);
-        $parentFilter = " AND [id_padre] = $p";
-    }
-    elseif (!empty($_GET['repositorio'])) {
+    } elseif (!empty($_GET['repositorio'])) {
         $p = intval($_GET['repositorio']);
-        $parentFilter = " AND [id_padre] = $p";
+    }
+
+    // Función recursiva en PHP para obtener todos los descendientes
+    function getDescendants($link, $parentId) {
+        $ids = [$parentId];
+        $res = mssql_query("SELECT id FROM [BDflexline].[TI].[base_repositorio] WHERE id_padre = $parentId AND vigencia='SI'", $link);
+        while($row = mssql_fetch_array($res)) {
+            $ids = array_merge($ids, getDescendants($link, $row['id']));
+        }
+        return $ids;
+    }
+
+    $parentFilter = '';
+    if($p > 0) {
+        $allIds = getDescendants($link, $p);
+        $allIdsList = implode(',', $allIds);
+        $parentFilter = " AND [id_padre] IN ($allIdsList)";
     }
 
     $sql ="SELECT [id], [nombre_elemento], [id_padre], [extencion_elemento], [tipo_elemento],
