@@ -312,17 +312,20 @@
             <h4 class="font-weight-bold mb-2" style="color:#333;">🧮 Filtros</h4>
 
             <div class="form-row mb-3">
-              <div class="col-md-4">
+              <div class="col-md-4" style="width: 232px;">
+                <label>Repositorio</label>
                 <select id="selectRepositorio" class="form-control">
                   <option value="">Todos los repositorios</option>
                 </select>
               </div>
               <div class="col-md-4">
-                <select id="selectArea" class="form-control">
+                <label>Área</label>
+                <select id="selectArea" class="form-control" style="width: 265px;">
                   <option value="">Seleccione repositorio primero</option>
                 </select>
               </div>
               <div class="col-md-4">
+                <label>Departamento</label>
                 <select id="selectDepartamento" class="form-control">
                   <option value="">Seleccione área primero</option>
                 </select>
