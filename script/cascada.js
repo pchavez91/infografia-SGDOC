@@ -268,13 +268,24 @@ function fillSelect($sel, items, placeholder) {
   $sel.html(html);
 }
 
-// === refs DOM (no cambiamos HTML) ===
+// === refs DOM ===
 var $modal, $selRepo, $selArea, $selDepto, $buscador;
 var tablaArchivos = null;
+var reloadTimeout = null;
+
+// === recarga segura de DataTable (evita duplicados) ===
+function reloadTablaArchivos() {
+  if(tablaArchivos){
+    clearTimeout(reloadTimeout);
+    reloadTimeout = setTimeout(() => {
+      tablaArchivos.ajax.reload();
+    }, 150); // espera 150ms para evitar múltiples reloads
+  }
+}
 
 // === inicialización DataTable (una sola vez) ===
 function ensureDataTable() {
-  if ( $.fn.dataTable.isDataTable('#tabla_lista_archivos_encontrados') ) {
+  if ($.fn.dataTable.isDataTable('#tabla_lista_archivos_encontrados')) {
     tablaArchivos = $('#tabla_lista_archivos_encontrados').DataTable();
     return;
   }
@@ -286,7 +297,6 @@ function ensureDataTable() {
     ajax: {
       url: 'json/json.php?accion=listar_archivos_busqueda',
       data: function (d) {
-        // Enviamos SIEMPRE los 3 filtros (vacíos si no hay)
         d.repositorio  = $selRepo.val()  || '';
         d.area         = $selArea.val()  || '';
         d.departamento = $selDepto.val() || '';
@@ -321,9 +331,8 @@ function ensureDataTable() {
   });
 }
 
-// === buscador global (separado de los filtros) ===
+// === buscador global ===
 function hookSearch() {
-  // soporta tanto el onkeyup inline del HTML como el evento jQuery
   window.tablaFiltroGlobal = function(q) {
     if (tablaArchivos) { tablaArchivos.search(q).draw(); }
   };
@@ -334,66 +343,57 @@ function hookSearch() {
 
 // === encadenado de filtros jerárquicos ===
 function hookFilters() {
-  // Repositorio → carga áreas, aplica filtro
+  // Repositorio → carga áreas
   $selRepo.on('change', function() {
     var repoId = $(this).val();
 
-    // reset hijos
-    fillSelect($selArea, [], 'Seleccione repositorio primero');
-    $selArea.prop('disabled', true);
-    fillSelect($selDepto, [], 'Seleccione área primero');
-    $selDepto.prop('disabled', true);
+    fillSelect($selArea, [], 'Seleccione repositorio primero'); $selArea.prop('disabled', true);
+    fillSelect($selDepto, [], 'Seleccione área primero');       $selDepto.prop('disabled', true);
 
-    // recarga tabla (si repo vacío, trae todos; si tiene valor, filtra por repo)
-    if (tablaArchivos) tablaArchivos.ajax.reload();
+    reloadTablaArchivos();
 
     if (repoId) {
-      loadDirOptions(parseInt(repoId, 10)).then(function(list) {
-        fillSelect($selArea, list, 'Seleccione área');
-        $selArea.prop('disabled', false);
+      loadDirOptions(parseInt(repoId,10)).then(function(list){
+        fillSelect($selArea, list, 'Seleccione área'); $selArea.prop('disabled', false);
       });
     }
   });
 
-  // Área → carga deptos, aplica filtro
+  // Área → carga deptos
   $selArea.on('change', function() {
     var areaId = $(this).val();
 
-    fillSelect($selDepto, [], 'Seleccione área primero');
-    $selDepto.prop('disabled', true);
+    fillSelect($selDepto, [], 'Seleccione área primero'); $selDepto.prop('disabled', true);
 
-    if (tablaArchivos) tablaArchivos.ajax.reload();
+    reloadTablaArchivos();
 
-    if (areaId) {
-      loadDirOptions(parseInt(areaId, 10)).then(function(list) {
-        fillSelect($selDepto, list, 'Seleccione departamento');
-        $selDepto.prop('disabled', false);
+    if(areaId){
+      loadDirOptions(parseInt(areaId,10)).then(function(list){
+        fillSelect($selDepto, list, 'Seleccione departamento'); $selDepto.prop('disabled', false);
       });
     }
   });
 
-  // Depto → aplica filtro más específico
+  // Depto → aplica filtro
   $selDepto.on('change', function() {
-    if (tablaArchivos) tablaArchivos.ajax.reload();
+    reloadTablaArchivos();
   });
 
-  // Botón aplicar (si existe en tu HTML): evitamos submit/refresh
-  $('#btnAplicarFiltros').on('click', function(e) {
+  // Botón aplicar filtros
+  $('#btnAplicarFiltros').on('click', function(e){
     e.preventDefault();
-    if (tablaArchivos) tablaArchivos.ajax.reload();
+    reloadTablaArchivos();
   });
 }
 
-// === abrir modal (siguiendo tu lógica antigua) ===
+// === abrir modal ===
 function abre_ventana_buscar_archivo() {
-  // respeta tu validación previa si existe el campo
   var $idDir = $('#id_directorio');
   if ($idDir.length && $idDir.val() === '0') {
     alert('Error: Al menos debe ingresar a algunos de los directorios');
     return;
   }
 
-  // refs (por si el DOM no estaba listo antes)
   $modal    = $('#ventana_busqueda_archivo');
   $selRepo  = $('#selectRepositorio');
   $selArea  = $('#selectArea');
@@ -405,37 +405,35 @@ function abre_ventana_buscar_archivo() {
   hookFilters();
 
   // limpiar buscador y resetear filtros
-  $buscador.val('');
-  tablaFiltroGlobal('');
-
+  $buscador.val(''); tablaFiltroGlobal('');
   $selRepo.prop('disabled', false).val('');
   fillSelect($selArea, [], 'Seleccione repositorio primero'); $selArea.prop('disabled', true);
   fillSelect($selDepto, [], 'Seleccione área primero');       $selDepto.prop('disabled', true);
 
   // cargar repos al abrir
-  loadDirOptions(ROOT_PARENT_ID).then(function(list) {
+  loadDirOptions(ROOT_PARENT_ID).then(function(list){
     fillSelect($selRepo, list, 'Seleccione repositorio');
   });
 
   // mostrar modal y cargar TODOS los archivos (sin filtros)
   $modal.modal('show');
-  tablaArchivos.ajax.reload();
+  reloadTablaArchivos();
 }
 
-// === compatibilidad: si además tienes un botón con id #btnBusquedaRapida, que llame a la misma función
-$(document).on('click', '#btnBusquedaRapida', function(e) {
+// === compatibilidad con botón de búsqueda rápida ===
+$(document).on('click', '#btnBusquedaRapida', function(e){
   e.preventDefault();
   abre_ventana_buscar_archivo();
 });
 
-// === ajustar columnas al mostrarse el modal (evita desalineación)
+// === ajustar columnas al mostrarse el modal ===
 $(document).on('shown.bs.modal', '#ventana_busqueda_archivo', function () {
   if (tablaArchivos) {
     tablaArchivos.columns.adjust().responsive.recalc();
   }
 });
 
-// === función global visualizar_archivo (igual a tu versión) ===
+// === función global para visualizar archivo ===
 function visualizar_archivo(id_directorio) {
   $.ajax({
     url: 'json/json.php?accion=abrir_nombre_archivo',
