@@ -236,92 +236,25 @@ $(function(){
 });
 
 
-$(function() {
-  const cacheDirs  = {};
-  const cacheFiles = {};
+$(document).ready(function() {
+  const ROOT_PARENT_ID = 1;  // Ajusta al id de tu repositorio raíz
+  const cacheDirs      = {};
 
-  // Funciones de petición con cache
-  function getSubdirs(id) {
-    if (cacheDirs[id]) {
-      return Promise.resolve(cacheDirs[id]);
+  // 1. Función para cargar directorios con cache
+  function loadDirOptions(idPadre) {
+    if (cacheDirs[idPadre]) {
+      return Promise.resolve(cacheDirs[idPadre]);
     }
     return $.getJSON('json/json.php', {
       accion:   'listar_elementos_filtro',
-      id_padre: id
-    })
-    .then(resp => {
-      cacheDirs[id] = resp.data;
-      return resp.data;
+      id_padre: idPadre
+    }).then(resp => {
+      cacheDirs[idPadre] = resp.data || [];
+      return cacheDirs[idPadre];
     });
   }
 
-  function getFiles(id) {
-    if (cacheFiles[id]) {
-      return Promise.resolve(cacheFiles[id]);
-    }
-    return $.getJSON('json/json.php', {
-      accion:       'listar_archivos_busqueda',
-      departamento: id
-    })
-    .then(resp => {
-      cacheFiles[id] = resp.data;
-      return resp.data;
-    });
-  }
-
-  // BFS PARA RECORRER CARPETAS Y RECOLECTAR TODOS LOS ARCHIVOS
-  function fetchFilesRecursively(rootId) {
-    const files = [];
-    let queue = rootId ? [ rootId ] : [];
-
-    return new Promise((resolve, reject) => {
-      (function step() {
-        if (!queue.length) {
-          return resolve(files);
-        }
-        const current = queue.slice();
-        queue = [];
-
-        const filesP = current.map(getFiles);
-        const dirsP  = current.map(getSubdirs);
-
-        Promise.all([
-          Promise.all(filesP),
-          Promise.all(dirsP)
-        ])
-        .then(([filesArrays, dirsArrays]) => {
-          // acumula archivos
-          filesArrays.forEach(arr => files.push(...arr));
-          // encola subdirectorios
-          dirsArrays.flat().forEach(d => queue.push(d.id));
-          step();
-        })
-        .catch(reject);
-      })();
-    });
-  }
-
-  //Inicializa DataTable (vacía)
-  const table = $('#tabla_lista_archivos_encontrados').DataTable({
-    data: [],
-    columns: [
-      { data: "nombre_elemento" },
-      { data: "codigo_archivo" },
-      {
-        data: "id",
-        render: (id, _, row) => `
-          <div style="cursor:pointer" onclick="visualizar_archivo('${id}')">
-            <img src="img/${row.extencion_elemento}.png"
-                 style="max-width:30px" title="Ver archivo">
-          </div>`
-      },
-      { data: "ruta" }
-    ],
-    responsive: true,
-    scrollX: true
-  });
-
-  // Rellena selects dependientes con cache, habilita/deshabilita niveles
+  // 2. Rellena un <select> con un placeholder
   function fillSelect($sel, items, placeholder) {
     let html = `<option value="">${placeholder}</option>`;
     items.forEach(it => {
@@ -330,97 +263,131 @@ $(function() {
     $sel.html(html);
   }
 
-  function loadOptions(id_padre, $sel, placeholder) {
-    $sel.prop('disabled', true);
-    if (cacheDirs[id_padre]) {
-      fillSelect($sel, cacheDirs[id_padre], placeholder);
-      $sel.prop('disabled', false);
-      return;
-    }
-    $.getJSON('json/json.php', {
-      accion:   'listar_elementos_filtro',
-      id_padre: id_padre
-    })
-    .done(resp => {
-      cacheDirs[id_padre] = resp.data;
-      fillSelect($sel, resp.data, placeholder);
-    })
-    .fail(err => console.error('listar_elementos_filtro falló', err))
-    .always(() => $sel.prop('disabled', false));
-  }
+  // 3. Referencias a elementos del DOM
+  const $btnOpen   = $('#btnBusquedaRapida');      // Botón que abre el modal
+  const $selRepo   = $('#selectRepositorio').prop('disabled', true);
+  const $selArea   = $('#selectArea').prop('disabled', true);
+  const $selDepto  = $('#selectDepartamento').prop('disabled', true);
+  const $btnApply  = $('#btnAplicarFiltros');
 
-  // Abre modal y pone todo a cero
-  $('#btnBusquedaRapida').on('click', function() {
-    if ($('#id_directorio').val() === '0') {
-      return alert('Error: debe ingresar a algún directorio');
-    }
-    $('#selectRepositorio, #selectArea, #selectDepartamento')
-      .val('').prop('disabled', true);
-    $('#btnAplicarFiltros').prop('disabled', true);
+  // 4. Inicializa repositorios y habilita el botón
+  loadDirOptions(ROOT_PARENT_ID).then(items => {
+    fillSelect($selRepo, items, 'Todos los repositorios');
+    $selRepo.prop('disabled', false);
+    $btnOpen.prop('disabled', false);
+  });
+
+  // 5. Inicializa DataTable
+  const table = $('#tabla_lista_archivos_encontrados').DataTable({
+    responsive: true,
+    scrollX:    true,
+    dom:        'lrtip',  // Quitamos el searchbox nativo
+    ajax: {
+      url:     'json/json.php?accion=listar_archivos_busqueda',
+      data:    function(d) {
+        // PHP prioriza departamento > área > repositorio
+        d.repositorio  = $selRepo.val();
+        d.area         = $selArea.val();
+        d.departamento = $selDepto.val();
+      },
+      dataSrc: 'data'
+    },
+    columns: [
+      { data: 'nombre_elemento' },
+      { data: 'codigo_archivo' },
+      {
+        data:   'id',
+        render: (id, _, row) => `
+          <div style="cursor:pointer" onclick="visualizar_archivo('${id}')">
+            <img src="img/${row.extencion_elemento}.png"
+                 style="max-width:30px"
+                 title="Ver archivo">
+          </div>`
+      },
+      { data: 'ruta' }
+    ],
+    language: {
+      lengthMenu:    "Mostrar _MENU_ registros",
+      zeroRecords:   "No se ha encontrado resultados",
+      info:          "Mostrando página _PAGE_ de _PAGES_",
+      infoEmpty:     "Sin resultados",
+      infoFiltered:  "(filtrado de _MAX_ totales)",
+      search:        "Buscar",
+      oPaginate: {
+        sFirst:    "Primero",
+        sLast:     "Último",
+        sNext:     "Siguiente",
+        sPrevious: "Anterior"
+      }
+    },
+    order: []  // Sin orden por defecto
+  });
+
+  // 6. Ajusta columnas al mostrar el modal
+  $('#ventana_busqueda_archivo').on('shown.bs.modal', function() {
+    table.columns.adjust();
+  });
+
+  // 7. Conecta tu input onkeyup="tablaFiltroGlobal(...)"
+  window.tablaFiltroGlobal = function(valor) {
+    table.search(valor).draw();
+  };
+
+  // 8. Click al botón “Búsqueda rápida”
+  $btnOpen.on('click', function(e) {
+    e.preventDefault();
+
+    // Reset de selects y tabla
+    $selRepo.prop('disabled', true).val('');
+    $selArea.prop('disabled', true).val('');
+    $selDepto.prop('disabled', true).val('');
     table.clear().draw();
 
-    // Ajusta este id_padre
-    loadOptions(1, $('#selectRepositorio'), 'Todos los repositorios');
-    $('#selectRepositorio').prop('disabled', false);
-
+    // Recarga repositorios y muestra modal
+    loadDirOptions(ROOT_PARENT_ID).then(items => {
+      fillSelect($selRepo, items, 'Todos los repositorios');
+      $selRepo.prop('disabled', false);
+    });
     $('#ventana_busqueda_archivo').modal('show');
   });
 
-  $('#selectRepositorio').on('change', function() {
+  // 9. Al cambiar repositorio → carga áreas
+  $selRepo.on('change', function() {
     const repo = this.value;
-    $('#selectArea, #selectDepartamento').val('').prop('disabled', true);
-    $('#btnAplicarFiltros').prop('disabled', !repo);
+    $selArea.prop('disabled', true).html('<option value="">Seleccione repositorio primero</option>');
+    $selDepto.prop('disabled', true).html('<option value="">Seleccione área primero</option>');
+    table.ajax.reload();
 
     if (repo) {
-      loadOptions(repo, $('#selectArea'), 'Todas las áreas');
-      $('#selectArea').prop('disabled', false);
+      loadDirOptions(repo).then(items => {
+        fillSelect($selArea, items, 'Todas las áreas');
+        $selArea.prop('disabled', false);
+      });
     }
   });
 
-  $('#selectArea').on('change', function() {
+  // 10. Al cambiar área → carga departamentos
+  $selArea.on('change', function() {
     const area = this.value;
-    $('#selectDepartamento').val('').prop('disabled', true);
-    $('#btnAplicarFiltros').prop('disabled', !area);
+    $selDepto.prop('disabled', true).html('<option value="">Seleccione área primero</option>');
+    table.ajax.reload();
 
     if (area) {
-      loadOptions(area, $('#selectDepartamento'), 'Todos los departamentos');
-      $('#selectDepartamento').prop('disabled', false);
+      loadDirOptions(area).then(items => {
+        fillSelect($selDepto, items, 'Todos los departamentos');
+        $selDepto.prop('disabled', false);
+      });
     }
   });
 
-  $('#selectDepartamento').on('change', function() {
-    $('#btnAplicarFiltros').prop('disabled', !this.value);
+  // 11. Al cambiar departamento → recarga tabla
+  $selDepto.on('change', function() {
+    table.ajax.reload();
   });
 
-  $('#btnAplicarFiltros').on('click', function() {
-    const repo = $('#selectRepositorio').val();
-    const area = $('#selectArea').val();
-    const dept = $('#selectDepartamento').val();
-
-    // determina carpeta raíz de la búsqueda
-    const rootId = dept || area || repo;
-
-    if (!rootId) {
-      table.clear().draw();
-      return;
-    }
-
-    fetchFilesRecursively(rootId)
-      .then(allFiles => {
-        // filtrar sólo tipo_elemento=0
-        const archivos = allFiles.filter(f => f.tipo_elemento === '0');
-        table.clear().rows.add(archivos).draw();
-      })
-      .catch(err => console.error('Error fetchFilesRecursively:', err));
+  // 12. Prevenir envío de formulario en “Aplicar filtros”
+  $btnApply.on('click', function(e) {
+    e.preventDefault();
+    table.ajax.reload();
   });
-
-  // para abrir archivos
-  window.visualizar_archivo = function(id) {
-    $.post('json/json.php?accion=abrir_nombre_archivo',
-      { id_directorio: id }, null, 'json'
-    ).done(json => {
-      window.open('archivos_subidos/' + json.descripcion, '_blank').focus();
-    });
-  };
 });
-

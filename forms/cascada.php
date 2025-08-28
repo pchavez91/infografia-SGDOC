@@ -166,7 +166,7 @@
   </head>
   <body>
     <div class="panel-header">
-      <button id="btnBusquedaRapida" class="btn btn-primary">Buscar archivo</button>
+      <button id="btnBusquedaRapida" type="button" class="btn btn-warning">Buscar archivo</button>
       <div class="titulo-panel">EXPLORADOR DE ARCHIVOS</div>
       <img id="btnAyuda" onclick="abre_modal_ayuda()" src="IMAGENES/ayuda.png" alt="Ayuda" class="icono-ayuda" title="¿Necesitas ayuda?">
     </div>
