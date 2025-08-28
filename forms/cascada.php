@@ -329,9 +329,6 @@
               </div>
             </div>
           </div>
-          <div class=button-group" style="padding: 30px 35px;">
-            <button id="btnAplicarFiltros" class="btn btn-primary mt-2">Aplicar filtros</button>
-          </div>
           <div class="row" style="padding: 0 15px;">
             <div class="col-xs-12 col-lg-12">
               <table

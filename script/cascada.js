@@ -237,7 +237,7 @@ $(function(){
 
 
 // === Config ===
-var ROOT_PARENT_ID = 1; // ID raíz para listar repositorios (ajústalo si tu raíz es otra)
+var ROOT_PARENT_ID = 1;
 
 // === Cache simple para hijos de directorios ===
 var __dirCache = {};
@@ -273,17 +273,17 @@ var $modal, $selRepo, $selArea, $selDepto, $buscador;
 var tablaArchivos = null;
 var reloadTimeout = null;
 
-// === recarga segura de DataTable (evita duplicados) ===
+// === recarga segura de DataTable ===
 function reloadTablaArchivos() {
   if(tablaArchivos){
     clearTimeout(reloadTimeout);
     reloadTimeout = setTimeout(() => {
       tablaArchivos.ajax.reload();
-    }, 150); // espera 150ms para evitar múltiples reloads
+    }, 150);
   }
 }
 
-// === inicialización DataTable (una sola vez) ===
+// === inicialización DataTable ===
 function ensureDataTable() {
   if ($.fn.dataTable.isDataTable('#tabla_lista_archivos_encontrados')) {
     tablaArchivos = $('#tabla_lista_archivos_encontrados').DataTable();
@@ -291,9 +291,11 @@ function ensureDataTable() {
   }
 
   tablaArchivos = $('#tabla_lista_archivos_encontrados').DataTable({
-    dom: 'lrtip',              // oculto searchbox nativo, usamos #buscador
+    dom: 'lrtip',
     responsive: true,
     scrollX: true,
+    scrollY: '300px', // altura interna de la tabla
+    scrollCollapse: true,
     ajax: {
       url: 'json/json.php?accion=listar_archivos_busqueda',
       data: function (d) {
@@ -327,7 +329,7 @@ function ensureDataTable() {
         first: 'Primero', last: 'Último', next: 'Siguiente', previous: 'Anterior'
       }
     },
-    order: [] // sin orden por defecto
+    order: []
   });
 }
 
@@ -341,17 +343,13 @@ function hookSearch() {
   });
 }
 
-// === encadenado de filtros jerárquicos ===
+// === filtros jerárquicos (sin botón) ===
 function hookFilters() {
-  // Repositorio → carga áreas
   $selRepo.on('change', function() {
     var repoId = $(this).val();
-
     fillSelect($selArea, [], 'Seleccione repositorio primero'); $selArea.prop('disabled', true);
     fillSelect($selDepto, [], 'Seleccione área primero');       $selDepto.prop('disabled', true);
-
     reloadTablaArchivos();
-
     if (repoId) {
       loadDirOptions(parseInt(repoId,10)).then(function(list){
         fillSelect($selArea, list, 'Seleccione área'); $selArea.prop('disabled', false);
@@ -359,14 +357,10 @@ function hookFilters() {
     }
   });
 
-  // Área → carga deptos
   $selArea.on('change', function() {
     var areaId = $(this).val();
-
     fillSelect($selDepto, [], 'Seleccione área primero'); $selDepto.prop('disabled', true);
-
     reloadTablaArchivos();
-
     if(areaId){
       loadDirOptions(parseInt(areaId,10)).then(function(list){
         fillSelect($selDepto, list, 'Seleccione departamento'); $selDepto.prop('disabled', false);
@@ -374,14 +368,7 @@ function hookFilters() {
     }
   });
 
-  // Depto → aplica filtro
   $selDepto.on('change', function() {
-    reloadTablaArchivos();
-  });
-
-  // Botón aplicar filtros
-  $('#btnAplicarFiltros').on('click', function(e){
-    e.preventDefault();
     reloadTablaArchivos();
   });
 }
@@ -404,23 +391,20 @@ function abre_ventana_buscar_archivo() {
   hookSearch();
   hookFilters();
 
-  // limpiar buscador y resetear filtros
   $buscador.val(''); tablaFiltroGlobal('');
   $selRepo.prop('disabled', false).val('');
   fillSelect($selArea, [], 'Seleccione repositorio primero'); $selArea.prop('disabled', true);
   fillSelect($selDepto, [], 'Seleccione área primero');       $selDepto.prop('disabled', true);
 
-  // cargar repos al abrir
   loadDirOptions(ROOT_PARENT_ID).then(function(list){
     fillSelect($selRepo, list, 'Seleccione repositorio');
   });
 
-  // mostrar modal y cargar TODOS los archivos (sin filtros)
   $modal.modal('show');
   reloadTablaArchivos();
 }
 
-// === compatibilidad con botón de búsqueda rápida ===
+// === compatibilidad con búsqueda rápida ===
 $(document).on('click', '#btnBusquedaRapida', function(e){
   e.preventDefault();
   abre_ventana_buscar_archivo();
@@ -433,7 +417,7 @@ $(document).on('shown.bs.modal', '#ventana_busqueda_archivo', function () {
   }
 });
 
-// === función global para visualizar archivo ===
+// === visualizar archivo ===
 function visualizar_archivo(id_directorio) {
   $.ajax({
     url: 'json/json.php?accion=abrir_nombre_archivo',
@@ -446,3 +430,4 @@ function visualizar_archivo(id_directorio) {
     }
   });
 }
+
