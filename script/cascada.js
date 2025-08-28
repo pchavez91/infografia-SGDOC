@@ -237,11 +237,10 @@ $(function(){
 
 
 $(function() {
-  // 1) CACHES PARA NO REPETIR PETICIONES
   const cacheDirs  = {};
   const cacheFiles = {};
 
-  // 2) Funciones de petición con cache
+  // Funciones de petición con cache
   function getSubdirs(id) {
     if (cacheDirs[id]) {
       return Promise.resolve(cacheDirs[id]);
@@ -270,7 +269,7 @@ $(function() {
     });
   }
 
-  // 3) BFS PARA RECORRER CARPETAS Y RECOLECTAR TODOS LOS ARCHIVOS
+  // BFS PARA RECORRER CARPETAS Y RECOLECTAR TODOS LOS ARCHIVOS
   function fetchFilesRecursively(rootId) {
     const files = [];
     let queue = rootId ? [ rootId ] : [];
@@ -302,7 +301,7 @@ $(function() {
     });
   }
 
-  // 4) Inicializa DataTable (vacía)
+  //Inicializa DataTable (vacía)
   const table = $('#tabla_lista_archivos_encontrados').DataTable({
     data: [],
     columns: [
@@ -322,7 +321,7 @@ $(function() {
     scrollX: true
   });
 
-  // 5) Rellena selects dependientes con cache, habilita/deshabilita niveles
+  // Rellena selects dependientes con cache, habilita/deshabilita niveles
   function fillSelect($sel, items, placeholder) {
     let html = `<option value="">${placeholder}</option>`;
     items.forEach(it => {
@@ -350,7 +349,7 @@ $(function() {
     .always(() => $sel.prop('disabled', false));
   }
 
-  // 6) Abre modal y pone todo a cero
+  // Abre modal y pone todo a cero
   $('#btnBusquedaRapida').on('click', function() {
     if ($('#id_directorio').val() === '0') {
       return alert('Error: debe ingresar a algún directorio');
@@ -360,14 +359,13 @@ $(function() {
     $('#btnAplicarFiltros').prop('disabled', true);
     table.clear().draw();
 
-    // Ajusta este id_padre a 0 o 1 según tu estructura raíz
+    // Ajusta este id_padre
     loadOptions(1, $('#selectRepositorio'), 'Todos los repositorios');
     $('#selectRepositorio').prop('disabled', false);
 
     $('#ventana_busqueda_archivo').modal('show');
   });
 
-  // 7) Cadena de dependencias de selects
   $('#selectRepositorio').on('change', function() {
     const repo = this.value;
     $('#selectArea, #selectDepartamento').val('').prop('disabled', true);
@@ -394,7 +392,6 @@ $(function() {
     $('#btnAplicarFiltros').prop('disabled', !this.value);
   });
 
-  // 8) Al pulsar "Aplicar filtros": recorre en paralelo todas las carpetas hijas
   $('#btnAplicarFiltros').on('click', function() {
     const repo = $('#selectRepositorio').val();
     const area = $('#selectArea').val();
@@ -410,14 +407,14 @@ $(function() {
 
     fetchFilesRecursively(rootId)
       .then(allFiles => {
-        // opcional: filtrar sólo tipo_elemento=0
+        // filtrar sólo tipo_elemento=0
         const archivos = allFiles.filter(f => f.tipo_elemento === '0');
         table.clear().rows.add(archivos).draw();
       })
       .catch(err => console.error('Error fetchFilesRecursively:', err));
   });
 
-  // 9) Función global para abrir archivos
+  // para abrir archivos
   window.visualizar_archivo = function(id) {
     $.post('json/json.php?accion=abrir_nombre_archivo',
       { id_directorio: id }, null, 'json'

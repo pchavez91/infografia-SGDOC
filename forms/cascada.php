@@ -327,11 +327,11 @@
                   <option value="">Seleccione área primero</option>
                 </select>
               </div>
-              
-              <button id="btnAplicarFiltros" class="btn btn-primary mt-2">Aplicar filtros</button>
-              
             </div>
-
+          </div>
+          <div class=button-group" style="padding: 30px 35px;">
+            <button id="btnAplicarFiltros" class="btn btn-primary mt-2">Aplicar filtros</button>
+          </div>
           <div class="row" style="padding: 0 15px;">
             <div class="col-xs-12 col-lg-12">
               <table
@@ -352,12 +352,6 @@
           <br><br>
         </form>
 
-        <div class="modal-footer">
-          <button
-            type="button"
-            class="btn btn-default"
-            data-dismiss="modal">Salir</button>
-        </div>
       </div>
     </div>
   </div>
