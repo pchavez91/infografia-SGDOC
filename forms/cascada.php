@@ -186,7 +186,7 @@
     <script src="script/infografia.js"></script>
   </body>
 
-  <!-- VENTANA NUEVA AYUDA-->
+  <!-- VENTANA AYUDA-->
   <div id="ventana_de_ayuda" class="modal fade">
     <div class="modal-dialog" style="width: 800px; max-width: 100%;">
       <div class="modal-content" style="border-radius: 10px;">
