@@ -1,50 +1,75 @@
 ✨ Módulo de Interfaz y Documentación Visual (infografia-SGDOC)
 
-Este repositorio detalla la implementación de un componente de Diseño de Experiencia de Usuario (UX) y Documentación Visual crítico para el Sistema de Gestión Documental y de Contenidos (SGDOC). Este proyecto se enfocó en transformar y optimizar la interfaz de usuario existente para mejorar la navegación y la claridad operativa.
-Este enfoque asegura la funcionalidad, la experiencia de usuario, el código limpio y la escalabilidad del componente.
+Este repositorio contiene la implementación de diseño y la infografía conceptual creada para documentar y explicar la arquitectura o el flujo de trabajo del proyecto Sistema de Gestión Documental y de Contenidos (SGDOC). Se enfocó en transformar la interfaz existente para maximizar la experiencia de usuario (UX) y asegurar la claridad operativa.
 
-🚀 Innovación 1: La Nueva Vista en Cascada
-Una actualización clave introducida en este módulo fue la transformación del explorador de archivos estándar del sistema. Para ofrecer una mejor comprensión de la estructura jerárquica de los documentos, se migró a una interfaz de explorador con vista en cascada.
-Esta mejora visual facilita al usuario el seguimiento de la ruta del archivo y la gestión de contenido. Las siguientes imágenes, ubicadas en la carpeta IMAGENES, ilustran esta transición:
+1. Componente de Asistencia: El Ícono de "Ayuda"
 
-Comparativa de Interfaz
-![Vista en Cascada Mejorada]
-(infografia-SGDOC/IMAGENES/explorador_archivos_1.png)
+Para mejorar la usabilidad y proporcionar soporte contextual, se implementó un ícono de "Ayuda" anclado permanentemente en la interfaz. Este ícono es fácilmente accesible en la parte superior derecha de la barra de título de cada página del sistema.
+Al hacer clic en este ícono, se activa un modal que presenta una infografía detallada (diseño conceptual) para guiar al usuario a través del funcionamiento del sistema.
+### Ícono de Ayuda Anclado
+![Icono de "Ayuda" en la barra de título](./IMAGENES/ayuda.png)
 
-💡 Innovación 2: Asistencia Integrada (Botón de Ayuda y Modal de Infografía)
-Para asegurar que el usuario entienda cómo funciona mejor el sistema, se integró un botón de "Ayuda" persistente [Usuario]. Este botón es el punto de acceso a la documentación visual del sistema:
-• Activación: Al hacer clic en el botón de ayuda.
-• Función: Se despliega un modal (ventana emergente) que contiene la infografía detallada del sistema, sirviendo como guía rápida y documentation visual [Usuario].
-Este componente garantiza una curva de aprendizaje más suave y reduce la necesidad de documentación externa extensa.
-Infografía y Modal de Ayuda en Acción
-Instrucción: Inserte aquí la imagen que muestra el modal de la infografía activado.
-![Modal de Infografía Activo]
-(./IMAGENES/ruta/a/imagen_modal.png)
-⚠️ Estado del Proyecto y Componentes
-Este repositorio se estableció como la base prototipo para el diseño de la interfaz y la implementación del sistema de ayuda.
-• ESTADO: COMPONENTE FINALIZADO (DISEÑO Y BASE FUNCIONALIDAD DE AYUDA) [6, Usuario].
-• Alcance: Contiene el diseño, la infografía, los activos gráficos (en la carpeta IMAGENES) y la funcionalidad base del modal [Usuario].
-• Continuación: La integración y finalización completa de todos los requerimientos del cliente se llevaron a cabo en el proyecto principal SGDOC [Usuario, 14].
+2. Transformación de la Interfaz del Explorador de Archivos
+
+Este módulo revolucionó la gestión de archivos dentro del sistema al reemplazar el explorador de archivos estándar por una interfaz más intuitiva y funcional.
+
+2.1. Nuevo Interfaz de Archivos (Vista en Cuadrícula)
+
+El nuevo diseño presenta los archivos y carpetas en una vista de cuadrícula o botones (cuadrados). Esta interfaz limpia es el punto de entrada para acceder al nuevo explorador:
+### Nuevo Diseño de Interfaz de Archivos
+![Nuevo Interfaz de Archivos en Cuadrícula](./IMAGENES/explorador_archivos_1.png)
+
+2.2. Activación del Modal del Explorador
+
+Al seleccionar (apretar) cualquiera de los elementos (cuadrados/botones) de la interfaz de archivos, se abre un modal (ventana emergente) que contiene la funcionalidad completa del nuevo explorador de archivos.
+
+### Modal con el Nuevo Explorador de Archivos
+![Modal con el Nuevo Explorador](./IMAGENES/explorador_archivos_2.png)
+
+2.3. Navegación en Vista Cascada
+
+La característica clave de este explorador es su sistema de navegación, que permite abrir las carpetas de manera secuencial en forma de cascada. Esta vista en cascada mejora drásticamente la capacidad del usuario para trazar la ruta del archivo y gestionar estructuras jerárquicas profundas.
+
+### Vista de Carpetas en Cascada
+![Explorador de Archivos en Vista Cascada](./IMAGENES/explorador_archivos_3.png)
+
+🛠️ Requisitos Técnicos y Configuración Inicial
+
+Para entender completamente o ejecutar los componentes funcionales de este módulo (cuyo código es predominantemente PHP), es necesario tener el entorno de desarrollo apropiado.
+
+1. Entorno de Desarrollo Local
+   
+• Herramienta Requerida (Servidor Local): Se utilizó XAMPP para crear el entorno de servidor local. XAMPP (o herramientas similares como WAMP/LAMP) es esencial para ejecutar los archivos PHP (93.8% del código).
+
+3. Conexión y Gestión de Datos
+
+Aunque el repositorio fue catalogado como un componente finalizado de diseño, la funcionalidad subyacente de los exploradores de archivos requiere datos dinámicos.
+
+• Manejo de Datos Dinámicos: Para que los datos (necesarios para el explorador de archivos y las carpetas) aparecieran en la interfaz, el sistema se configuró para conectarse a una base de datos SQL Server.
+
+• Capa Intermediaria (json.php): La conexión entre el frontend y la base de datos se maneja a través del archivo json.php (ubicado en la carpeta json). Este archivo actúa como un endpoint que se conecta al SQL Server, recupera la información solicitada y la expone en formato JSON, permitiendo que el JavaScript (4.3% del código) la consuma y la muestre al usuario en el explorador.
+
+⚠️ Estado del Proyecto y Tecnologías
+Este repositorio representa un COMPONENTE FINALIZADO (DISEÑO/INFOGRAFÍA). Contiene la base de diseño, los activos gráficos (en la carpeta IMAGENES) y la funcionalidad prototipo de asistencia.
+La integración final y el cumplimiento total de los requerimientos del cliente fueron completados en el repositorio principal, SGDOC.
+
+
 💻 Stack de Tecnologías
-Este componente utiliza una combinación de tecnologías centradas en la lógica (PHP) y la interactividad del lado del cliente (JavaScript/CSS):
-Tecnología
-Porcentaje
-Propósito Principal
-PHP
-93.8%
-Lógica de servidor y estructura de plantillas.
-JavaScript
-4.3%
-Funcionalidad del modal de ayuda, scripts para la vista en cascada [7, Usuario].
-CSS
-1.0%
-Estilización de la interfaz, incluyendo la vista en cascada [7, Usuario].
-Hack
-0.9%
-HTML
-0.0%
+
+| Tecnología | Porcentaje | Propósito Principal/Descripción |
+| :--- | :---: | :--- |
+| **PHP** | 93.8% | Principal lenguaje de programación utilizado para la lógica de servidor y la estructura del sistema [1]. Se requiere un entorno como **XAMPP** para la ejecución local [Conversación]. |
+| **JavaScript** | 4.3% | Utilizado para la interactividad de la interfaz (como el modal de ayuda) y para la **comunicación asíncrona** con `json.php` para consumir datos de **SQL Server** y mostrarlos en el explorador [7, Conversación]. |
+| **CSS** | 1.0% | Estilización de la interfaz de usuario, crucial para implementar la nueva **vista en cascada** y el diseño del modal de ayuda [7, Conversación]. |
+| **Hack** | 0.9% | Parte del código base. |
+| **HTML** | 0.0% | El marcado es generado y administrado principalmente a través de plantillas PHP 
+
 📧 Conectemos
-Si desea discutir este componente de diseño o mis habilidades como Desarrollador Full-Stack:
+
+Mi enfoque profesional se centra en la funcionalidad y la experiencia de usuario, asegurando un código limpio y escalable.
+
+• Perfil: Ingeniero en Informática | Desarrollador Full-Stack | Especializado en Shopify, Bots de Discord y Python/PHP.
+
 • LinkedIn: Patricio Chávez.
-• Email: pchavez.dev@gmail.com.
-• Perfil: Ingeniero en Informática | Desarrollador Full-Stack | Especializado en Shopify, Bots de Discord y Python/PHP
+
+• Email: pchavez.dev@gmail.com
